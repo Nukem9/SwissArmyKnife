@@ -26,3 +26,11 @@
 *.exe
 *.out
 *.app
+
+# Visual Studio
+*.opensdf
+*.sdf
+
+# Debug directories
+SwissArmyKnife/Debug/*
+SwissArmyKnife/Release/*
