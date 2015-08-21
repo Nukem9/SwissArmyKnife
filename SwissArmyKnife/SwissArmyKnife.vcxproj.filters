@@ -34,6 +34,12 @@
     <Filter Include="Source Files\sigmake\distorm">
       <UniqueIdentifier>{ae947c99-f0d5-40d3-a132-7d66ac5906ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\peid">
+      <UniqueIdentifier>{2af90c9e-13be-4ab3-b61c-93b031f07bd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\peid">
+      <UniqueIdentifier>{edfe7dab-8db6-43f6-9a44-e0018c814b41}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\idaldr\IDA\Crc16.cpp">
@@ -56,9 +62,6 @@
     </ClCompile>
     <ClCompile Include="..\idaldr\Map\MapWriter.cpp">
       <Filter>Source Files\idaldr</Filter>
-    </ClCompile>
-    <ClCompile Include="..\idaldr\IDA\Sig.cpp">
-      <Filter>Source Files\sigmake</Filter>
     </ClCompile>
     <ClCompile Include="..\sigmake\SigMake.cpp">
       <Filter>Source Files\sigmake</Filter>
@@ -105,12 +108,15 @@
     <ClCompile Include="..\sigmake\Dialog\SigMakeDialog.cpp">
       <Filter>Source Files\sigmake</Filter>
     </ClCompile>
+    <ClCompile Include="..\peid\peid.cpp">
+      <Filter>Source Files\peid</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idaldr\IDA\Sig.cpp">
+      <Filter>Source Files\idaldr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\sigmake\resource.h">
-      <Filter>Header Files\sigmake</Filter>
-    </ClInclude>
-    <ClInclude Include="..\idaldr\IDA\Sig.h">
       <Filter>Header Files\sigmake</Filter>
     </ClInclude>
     <ClInclude Include="..\sigmake\SigMake.h">
@@ -193,6 +199,12 @@
     </ClInclude>
     <ClInclude Include="..\sigmake\Dialog\SigMakeDialog.h">
       <Filter>Header Files\sigmake</Filter>
+    </ClInclude>
+    <ClInclude Include="..\peid\peid.h">
+      <Filter>Header Files\peid</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idaldr\IDA\Sig.h">
+      <Filter>Header Files\idaldr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

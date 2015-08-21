@@ -154,6 +154,7 @@
     <ClCompile Include="..\idaldr\Ldr.cpp" />
     <ClCompile Include="..\idaldr\Map\MapReader.cpp" />
     <ClCompile Include="..\idaldr\Map\MapWriter.cpp" />
+    <ClCompile Include="..\peid\peid.cpp" />
     <ClCompile Include="..\sigmake\Descriptor.cpp" />
     <ClCompile Include="..\sigmake\Dialog\Settings.cpp" />
     <ClCompile Include="..\sigmake\Dialog\SettingsDialog.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="..\idaldr\Ldr.h" />
     <ClInclude Include="..\idaldr\Map\Map.h" />
     <ClInclude Include="..\idaldr\stdafx.h" />
+    <ClInclude Include="..\peid\peid.h" />
     <ClInclude Include="..\sigmake\Descriptor.h" />
     <ClInclude Include="..\sigmake\Dialog\Settings.h" />
     <ClInclude Include="..\sigmake\Dialog\SettingsDialog.h" />
