@@ -148,8 +148,7 @@ bool IDASig::Decompress()
 {
 	//
 	// ZLIB
-	// 
-	
+	// 	
 	DWORD inflatedOffset = m_FileData - m_FileDataBase;
 	DWORD inflatedSize = m_FileSize - inflatedOffset;
 	_plugin_logprintf("Compressed data at offset 0x%X with size 0x%X\n", inflatedOffset, inflatedSize);

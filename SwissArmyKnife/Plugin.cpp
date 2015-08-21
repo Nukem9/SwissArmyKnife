@@ -5,13 +5,6 @@ int g_PluginHandle;
 
 HMODULE g_LocalDllHandle;
 
-bool ApplySignatureSymbols(char *Path, duint ModuleBase);
-bool ApplyDiffSymbols(char *Path, duint ModuleBase);
-bool ApplyMapSymbols(char *Path, duint ModuleBase);
-
-bool ExportDiffSymbols(char *Path, duint ModuleBase);
-bool ExportMapSymbols(char *Path, duint ModuleBase);
-
 void MenuEntryCallback(CBTYPE Type, PLUG_CB_MENUENTRY *Info)
 {
 	switch (Info->hEntry)
@@ -47,7 +40,7 @@ void MenuEntryCallback(CBTYPE Type, PLUG_CB_MENUENTRY *Info)
 		break;
 
 	case PLUGIN_MENU_ABOUT:
-		MessageBoxA(GuiGetWindowHandle(), "Plugin created by Nukem.\n\nSource code at:\nhttps://bitbucket.org/Nukem9/idaldr/", "About", 0);
+		MessageBoxA(GuiGetWindowHandle(), "Plugin created by Nukem.\n\nSource code at:\nhttps://github.com/Nukem9/SwissArmyKnife", "About", 0);
 		break;
 	}
 
