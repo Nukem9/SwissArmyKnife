@@ -34,3 +34,4 @@
 # Debug directories
 SwissArmyKnife/Debug/*
 SwissArmyKnife/Release/*
+SwissArmyKnife/x64/*

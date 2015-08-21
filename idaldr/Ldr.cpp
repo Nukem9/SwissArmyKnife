@@ -339,8 +339,9 @@ bool ApplyMapSymbols(char *Path, duint ModuleBase)
         char szModulePath[MAX_MODULE_SIZE] = "";
         if (DbgFunctions()->ModPathFromAddr(ModuleBase, szModulePath, MAX_PATH))
         {
-            int sections = GetPE32Data(szModulePath, 0, UE_SECTIONNUMBER);
-            for (int i = 0; i < sections; i++)
+            size_t sectionCount = GetPE32Data(szModulePath, 0, UE_SECTIONNUMBER);
+
+            for (int i = 0; i < sectionCount; i++)
             {
                 MapFileSegment segdef;
                 memset(&segdef, 0, sizeof(segdef));
