@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\zlib">
+      <UniqueIdentifier>{d1106870-7021-4754-98d8-262b748e1467}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\idaldr">
+      <UniqueIdentifier>{0e4232bd-0c05-4053-b64f-39246fd741bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\sigmake">
+      <UniqueIdentifier>{cfcb9d08-23fb-4f2d-91c3-ae2fda874a84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\idaldr">
+      <UniqueIdentifier>{b8224815-0b93-4791-a881-c0ef2ee5eb34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\sigmake">
+      <UniqueIdentifier>{2cacb0b7-b99f-4a2d-82e3-c4e52b9f8705}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\sigmake\distorm">
+      <UniqueIdentifier>{5e1fb1f4-c148-46ec-a84e-38a18e4c8300}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\sigmake\distorm">
+      <UniqueIdentifier>{ae947c99-f0d5-40d3-a132-7d66ac5906ba}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\idaldr\IDA\Crc16.cpp">
+      <Filter>Source Files\idaldr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sigmake\Descriptor.cpp">
+      <Filter>Source Files\sigmake</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idaldr\IDA\DiffReader.cpp">
+      <Filter>Source Files\idaldr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idaldr\IDA\DiffWriter.cpp">
+      <Filter>Source Files\idaldr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idaldr\Ldr.cpp">
+      <Filter>Source Files\idaldr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idaldr\Map\MapReader.cpp">
+      <Filter>Source Files\idaldr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idaldr\Map\MapWriter.cpp">
+      <Filter>Source Files\idaldr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\idaldr\IDA\Sig.cpp">
+      <Filter>Source Files\sigmake</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sigmake\SigMake.cpp">
+      <Filter>Source Files\sigmake</Filter>
+    </ClCompile>
+    <ClCompile Include="Plugin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sigmake\distorm\decoder.c">
+      <Filter>Source Files\sigmake\distorm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sigmake\distorm\distorm.c">
+      <Filter>Source Files\sigmake\distorm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sigmake\distorm\instructions.c">
+      <Filter>Source Files\sigmake\distorm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sigmake\distorm\insts.c">
+      <Filter>Source Files\sigmake\distorm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sigmake\distorm\mnemonics.c">
+      <Filter>Source Files\sigmake\distorm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sigmake\distorm\operands.c">
+      <Filter>Source Files\sigmake\distorm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sigmake\distorm\prefix.c">
+      <Filter>Source Files\sigmake\distorm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sigmake\distorm\textdefs.c">
+      <Filter>Source Files\sigmake\distorm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sigmake\distorm\wstring.c">
+      <Filter>Source Files\sigmake\distorm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sigmake\Dialog\SettingsDialog.cpp">
+      <Filter>Source Files\sigmake</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sigmake\Dialog\Settings.cpp">
+      <Filter>Source Files\sigmake</Filter>
+    </ClCompile>
+    <ClCompile Include="..\sigmake\Dialog\SigMakeDialog.cpp">
+      <Filter>Source Files\sigmake</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\sigmake\resource.h">
+      <Filter>Header Files\sigmake</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idaldr\IDA\Sig.h">
+      <Filter>Header Files\sigmake</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\SigMake.h">
+      <Filter>Header Files\sigmake</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idaldr\Map\Map.h">
+      <Filter>Header Files\idaldr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idaldr\IDA\Diff.h">
+      <Filter>Header Files\idaldr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\Descriptor.h">
+      <Filter>Header Files\sigmake</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idaldr\IDA\Crc16.h">
+      <Filter>Header Files\idaldr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idaldr\stdafx.h">
+      <Filter>Header Files\idaldr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\stdafx.h">
+      <Filter>Header Files\sigmake</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Plugin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\idaldr\Ldr.h">
+      <Filter>Header Files\idaldr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\zlib\zconf.h">
+      <Filter>Header Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\zlib\zlib.h">
+      <Filter>Header Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\distorm\config.h">
+      <Filter>Header Files\sigmake\distorm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\distorm\decoder.h">
+      <Filter>Header Files\sigmake\distorm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\distorm\distorm.h">
+      <Filter>Header Files\sigmake\distorm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\distorm\instructions.h">
+      <Filter>Header Files\sigmake\distorm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\distorm\insts.h">
+      <Filter>Header Files\sigmake\distorm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\distorm\mnemonics.h">
+      <Filter>Header Files\sigmake\distorm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\distorm\operands.h">
+      <Filter>Header Files\sigmake\distorm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\distorm\prefix.h">
+      <Filter>Header Files\sigmake\distorm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\distorm\textdefs.h">
+      <Filter>Header Files\sigmake\distorm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\distorm\wstring.h">
+      <Filter>Header Files\sigmake\distorm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\distorm\x86defs.h">
+      <Filter>Header Files\sigmake\distorm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\Dialog\Settings.h">
+      <Filter>Header Files\sigmake</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\Dialog\SettingsDialog.h">
+      <Filter>Header Files\sigmake</Filter>
+    </ClInclude>
+    <ClInclude Include="..\sigmake\Dialog\SigMakeDialog.h">
+      <Filter>Header Files\sigmake</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\sigmake\sigmake.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
