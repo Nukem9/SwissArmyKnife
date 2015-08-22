@@ -2,5 +2,5 @@
 
 bool ApplyPEiDSymbols(char *Path, duint ModuleBase)
 {
-
+	return false;
 }

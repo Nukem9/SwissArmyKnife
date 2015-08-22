@@ -332,22 +332,26 @@ bool ApplyMapSymbols(char *Path, duint ModuleBase)
 
     //
     // Get segments
-    // 
+    //
     auto& segments = map.GetSegments();
-    if (!segments.size()) // Use the executable sections as segments per default
+
+	// Use the executable sections as segments when they are not supplied
+	// in the file
+    if (!segments.size())
     {
-        char szModulePath[MAX_MODULE_SIZE] = "";
-        if (DbgFunctions()->ModPathFromAddr(ModuleBase, szModulePath, MAX_PATH))
+        char modulePath[MAX_MODULE_SIZE];
+
+        if (DbgFunctions()->ModPathFromAddr(ModuleBase, modulePath, ARRAYSIZE(modulePath)))
         {
-            size_t sectionCount = GetPE32Data(szModulePath, 0, UE_SECTIONNUMBER);
+            size_t sectionCount = GetPE32Data(modulePath, 0, UE_SECTIONNUMBER);
 
             for (int i = 0; i < sectionCount; i++)
             {
                 MapFileSegment segdef;
                 memset(&segdef, 0, sizeof(segdef));
-                strcpy_s(segdef.Name, (const char*)GetPE32Data(szModulePath, i, UE_SECTIONNAME));
-                segdef.Start = GetPE32Data(szModulePath, i, UE_SECTIONVIRTUALOFFSET);
-                segdef.Length = GetPE32Data(szModulePath, i, UE_SECTIONVIRTUALSIZE);
+                strcpy_s(segdef.Name, (const char*)GetPE32Data(modulePath, i, UE_SECTIONNAME));
+                segdef.Start = GetPE32Data(modulePath, i, UE_SECTIONVIRTUALOFFSET);
+                segdef.Length = GetPE32Data(modulePath, i, UE_SECTIONVIRTUALSIZE);
                 segdef.Id = i + 1;
 
                 segments.insert({ segdef.Id, segdef });
@@ -358,9 +362,10 @@ bool ApplyMapSymbols(char *Path, duint ModuleBase)
     //
     // Print segments to log
     // 
-    _plugin_logprintf("%d Segments\n", segments.size());
+    _plugin_logprintf("%d segment(s)\n", segments.size());
+
     for (auto& seg : segments)
-        _plugin_logprintf("  %d: Start=0x%p, Length=0x%p\n", seg.second.Id, seg.second.Start, seg.second.Length);
+        _plugin_logprintf("  %d: Start=0x%llX, Length=0x%llX\n", seg.second.Id, seg.second.Start, seg.second.Length);
 
 	//
 	// Apply each symbol manually
@@ -369,6 +374,8 @@ bool ApplyMapSymbols(char *Path, duint ModuleBase)
     {
         ULONGLONG segStart = segments.count(sym.Id) ? segments[sym.Id].Start : 0;
         DbgSetAutoLabelAt((duint)(ModuleBase + segStart + sym.Offset), sym.Name);
+
+		_plugin_logprintf("0x%llx -> %s\n", (ULONGLONG)(ModuleBase + segStart + sym.Offset), sym.Name);
     }
 
 	_plugin_logprintf("Applied %d symbol(s)\n", map.GetSymbols().size());
