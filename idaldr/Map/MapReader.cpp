@@ -204,6 +204,10 @@ bool MapFile::LoadSegment(char *Line)
 	if (sscanf_s(tokens[2], "%llxH", &segdef.Length) <= 0)
 		return false;
 
+	// Segment definitions are adjusted to skip the PE header,
+	// which is never defined in the file (1 page, 4096 bytes)
+	segdef.Start += 4096;
+
     m_Segments.insert({ segdef.Id, segdef });
 
 	return true;
