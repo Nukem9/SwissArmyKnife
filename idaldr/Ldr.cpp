@@ -337,7 +337,7 @@ bool ApplyMapSymbols(char *Path, duint ModuleBase)
 
 	// Use the executable sections as segments when they are not supplied
 	// in the file
-    if (!segments.size())
+    if (segments.empty())
     {
         char modulePath[MAX_MODULE_SIZE];
 
@@ -354,7 +354,7 @@ bool ApplyMapSymbols(char *Path, duint ModuleBase)
                 segdef.Length = GetPE32Data(modulePath, i, UE_SECTIONVIRTUALSIZE);
                 segdef.Id = i + 1;
 
-                segments.insert({ segdef.Id, segdef });
+                segments.push_back(segdef);
             }
         }
     }
@@ -365,14 +365,14 @@ bool ApplyMapSymbols(char *Path, duint ModuleBase)
     _plugin_logprintf("%d segment(s)\n", segments.size());
 
     for (auto& seg : segments)
-        _plugin_logprintf("  %d: Start=0x%llX, Length=0x%llX\n", seg.second.Id, seg.second.Start, seg.second.Length);
+        _plugin_logprintf("  %d: Start=0x%08llX, Length=0x%08llX, %s\n", seg.Id, seg.Start, seg.Length, seg.Name);
 
 	//
 	// Apply each symbol manually
 	//
     for (auto& sym : map.GetSymbols())
     {
-        ULONGLONG segStart = segments.count(sym.Id) ? segments[sym.Id].Start : 0;
+		ULONGLONG segStart = map.GetSegmentStart(sym.Id);
         DbgSetAutoLabelAt((duint)(ModuleBase + segStart + sym.Offset), sym.Name);
 
 		_plugin_logprintf("0x%llx -> %s\n", (ULONGLONG)(ModuleBase + segStart + sym.Offset), sym.Name);

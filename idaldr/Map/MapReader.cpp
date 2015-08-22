@@ -2,9 +2,10 @@
 
 MapFile::MapFile()
 {
-	m_FileHandle	= INVALID_HANDLE_VALUE;
-	m_FileDataBase	= nullptr;
-	m_FileData		= nullptr;
+	m_FileHandle		= INVALID_HANDLE_VALUE;
+	m_FileDataBase		= nullptr;
+	m_FileData			= nullptr;
+	m_SegmentTotalSize	= 0;
 	m_Symbols.reserve(5000);
 }
 
@@ -62,7 +63,7 @@ bool MapFile::Load(const char *Path)
 	return true;
 }
 
-std::map<int, MapFileSegment>& MapFile::GetSegments()
+std::vector<MapFileSegment>& MapFile::GetSegments()
 {
 	return m_Segments;
 }
@@ -70,6 +71,17 @@ std::map<int, MapFileSegment>& MapFile::GetSegments()
 std::vector<MapFileSymbol>& MapFile::GetSymbols()
 {
 	return m_Symbols;
+}
+
+ULONGLONG MapFile::GetSegmentStart(int Id)
+{
+	for (auto& segment : m_Segments)
+	{
+		if (segment.Id == Id)
+			return segment.Start;
+	}
+
+	return 0;
 }
 
 bool MapFile::EnumerateLines(char *Start, int Type)
@@ -139,6 +151,20 @@ bool MapFile::LoadSegments()
 		return false;
 	}
 
+	// Insert a fake segment for the PE header (Id #0)
+	// Size: 4096 bytes
+	MapFileSegment segdef;
+
+	strcpy_s(segdef.Name, "PE_HEADER");
+	strcpy_s(segdef.Class, "DATA");
+	segdef.Id		= 0;
+	segdef.Start	= 0;
+	segdef.Length	= 4096;
+
+	m_SegmentTotalSize += segdef.Length;
+	m_Segments.push_back(segdef);
+
+	// Enumerate segment definition lines
 	return EnumerateLines(startPos, 'SEGM');
 }
 
@@ -191,6 +217,8 @@ bool MapFile::LoadSegment(char *Line)
 			break;
 	}
 
+	// Parse the file data directly
+	// Format: "0002:00000150 00000004H .rdata$sxdata"
 	MapFileSegment segdef;
 	strcpy_s(segdef.Name, tokens[3]);
 	strcpy_s(segdef.Class, tokens[4]);
@@ -204,11 +232,14 @@ bool MapFile::LoadSegment(char *Line)
 	if (sscanf_s(tokens[2], "%llxH", &segdef.Length) <= 0)
 		return false;
 
-	// Segment definitions are adjusted to skip the PE header,
-	// which is never defined in the file (1 page, 4096 bytes)
-	segdef.Start += 4096;
+	// Skip segments with a zero length
+	if (segdef.Length <= 0)
+		return true;
 
-    m_Segments.insert({ segdef.Id, segdef });
+	segdef.Start		+= m_SegmentTotalSize;
+	m_SegmentTotalSize	+= segdef.Length;
+
+    m_Segments.push_back(segdef);
 
 	return true;
 }

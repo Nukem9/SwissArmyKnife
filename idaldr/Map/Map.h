@@ -25,7 +25,8 @@ private:
 	char	*m_FileDataBase;
 	char	*m_FileData;
 
-	std::map<int, MapFileSegment> m_Segments;
+	ULONGLONG					m_SegmentTotalSize;
+	std::vector<MapFileSegment>	m_Segments;
 	std::vector<MapFileSymbol>	m_Symbols;
 
 public:
@@ -34,8 +35,9 @@ public:
 
 	bool Load(const char *Path);
 
-	std::map<int, MapFileSegment>&	GetSegments();
+	std::vector<MapFileSegment>&	GetSegments();
 	std::vector<MapFileSymbol>&		GetSymbols();
+	ULONGLONG						GetSegmentStart(int Id);
 
 private:
 	bool EnumerateLines(char *Start, int Type);
