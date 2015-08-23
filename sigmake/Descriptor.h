@@ -6,6 +6,7 @@ enum SIGNATURE_TYPE
 {
 	SIG_CODE,
 	SIG_IDA,
+	SIG_PEID,
 	SIG_CRC,
 };
 
@@ -28,8 +29,10 @@ void ShortenDescriptor(SIG_DESCRIPTOR *Descriptor);
 
 void DescriptorToCode(SIG_DESCRIPTOR *Descriptor, char **Data, char **Mask);
 void DescriptorToIDA(SIG_DESCRIPTOR *Descriptor, char **Data);
+void DescriptorToPEiD(SIG_DESCRIPTOR *Descriptor, char **Data);
 void DescriptorToCRC(SIG_DESCRIPTOR *Descriptor, char **Data, char **Mask);
 
-SIG_DESCRIPTOR *DescriptorFromCode(char *Data, char *Mask);
-SIG_DESCRIPTOR *DescriptorFromIDA(char *Data);
-SIG_DESCRIPTOR *DescriptorFromCRC(char *Data);
+SIG_DESCRIPTOR *DescriptorFromCode(const char *Data, const char *Mask);
+SIG_DESCRIPTOR *DescriptorFromIDA(const char *Data);
+SIG_DESCRIPTOR *DescriptorFromPEiD(const char *Data);
+SIG_DESCRIPTOR *DescriptorFromCRC(const char *Data);

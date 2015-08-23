@@ -85,7 +85,6 @@ DLL_EXPORT void plugsetup(PLUG_SETUPSTRUCT *SetupStruct)
 	g_MenuHandle = SetupStruct->hMenu;
 
 	// Initialize the menu
-	// IDALdr
 	int loadMenu = _plugin_menuadd(g_MenuHandle, "Load");
 	_plugin_menuaddentry(loadMenu, PLUGIN_MENU_LOADSIG, "&SIG file");
 	_plugin_menuaddentry(loadMenu, PLUGIN_MENU_LOADDIF, "&DIF file");
@@ -97,9 +96,9 @@ DLL_EXPORT void plugsetup(PLUG_SETUPSTRUCT *SetupStruct)
 	_plugin_menuaddentry(exportMenu, PLUGIN_MENU_EXPORTMAP, "&MAP file");
 	_plugin_menuaddseparator(g_MenuHandle);
 
-	// SigMake
-	_plugin_menuaddentry(g_MenuHandle, PLUGIN_MENU_MAKESIG, "&Create signature");
-	_plugin_menuaddentry(g_MenuHandle, PLUGIN_MENU_SETTINGS, "&Signature options");
+	int signatureMenu = _plugin_menuadd(g_MenuHandle, "Signature");
+	_plugin_menuaddentry(signatureMenu, PLUGIN_MENU_MAKESIG, "&Create");
+	_plugin_menuaddentry(signatureMenu, PLUGIN_MENU_SETTINGS, "&Options");
 	_plugin_menuaddseparator(g_MenuHandle);
 
 	// Misc

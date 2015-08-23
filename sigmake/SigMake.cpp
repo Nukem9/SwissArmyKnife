@@ -18,7 +18,7 @@ SIG_DESCRIPTOR *GenerateSigFromCode(duint Start, duint End)
 	// Check if the copy size is within sane limits.
 	// The last byte is inclusive.
 	//
-	duint codeSize = End - Start + 1;
+	ULONG codeSize = (ULONG)(End - Start + 1);
 
 	if (codeSize < CodeSizeMinimum || codeSize > CodeSizeMaximum)
 	{
@@ -40,7 +40,7 @@ SIG_DESCRIPTOR *GenerateSigFromCode(duint Start, duint End)
 	//
 	// Allocate the descriptor buffer (Count = # of bytes)
 	//
-	desc = AllocDescriptor((ULONG)codeSize);
+	desc = AllocDescriptor(codeSize);
 
 	//
 	// Allocate the disassembly buffer

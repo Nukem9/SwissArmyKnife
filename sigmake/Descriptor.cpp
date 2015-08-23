@@ -8,6 +8,7 @@ SIG_DESCRIPTOR *AllocDescriptor(ULONG Count)
 	if (temp)
 		temp->Count = Count;
 
+	// Return value is gnored; BridgeAlloc will kill the program on failure
 	return temp;
 }
 
@@ -31,7 +32,8 @@ void ShortenDescriptor(SIG_DESCRIPTOR *Descriptor)
 	//
 	// This shortens patterns by detecting the number
 	// of resulting matches. If there is more than one,
-	// return. The signature is as short as possible.
+	// return. The signature is as short as possible, but
+	// still accurate
 	//
 	std::vector<duint> results;
 
@@ -115,13 +117,43 @@ void DescriptorToIDA(SIG_DESCRIPTOR *Descriptor, char **Data)
 		*strrchr(*Data, ' ') = '\0';
 }
 
+void DescriptorToPEiD(SIG_DESCRIPTOR *Descriptor, char **Data)
+{
+	// Similar to IDA, allows for one more ? -> '00 00 ?? 99 99'
+	//
+	// Allocate buffers for the resulting strings.
+	// Worst case scenario: all are 2 bytes (No wildcards)
+	//
+	size_t dataSize = Descriptor->Count * strlen("00 ") + 1;
+	*Data			= (char *)BridgeAlloc(dataSize);
+
+	for (ULONG i = 0; i < Descriptor->Count; i++)
+	{
+		if (Descriptor->Entries[i].Wildcard == 0)
+		{
+			char temp[16];
+			sprintf_s(temp, "%02X ", (DWORD)Descriptor->Entries[i].Value);
+
+			strcat_s(*Data, dataSize, temp);
+		}
+		else
+		{
+			strcat_s(*Data, dataSize, "?? ");
+		}
+	}
+
+	// Remove the final space
+	if (strrchr(*Data, ' '))
+		*strrchr(*Data, ' ') = '\0';
+}
+
 void DescriptorToCRC(SIG_DESCRIPTOR *Descriptor, char **Data, char **Mask)
 {
 	// TODO
 	__debugbreak();
 }
 
-SIG_DESCRIPTOR *DescriptorFromCode(char *Data, char *Mask)
+SIG_DESCRIPTOR *DescriptorFromCode(const char *Data, const char *Mask)
 {
 	//
 	// Get the number of byte entries
@@ -159,7 +191,7 @@ SIG_DESCRIPTOR *DescriptorFromCode(char *Data, char *Mask)
 	return desc;
 }
 
-SIG_DESCRIPTOR *DescriptorFromIDA(char *Data)
+SIG_DESCRIPTOR *DescriptorFromIDA(const char *Data)
 {
 	//
 	// Get the number of entries by counting spaces + 1
@@ -181,8 +213,8 @@ SIG_DESCRIPTOR *DescriptorFromIDA(char *Data)
 	//
 	// 00 44 ? ? 66 ? 88 99
 	//
-	char *dataStart = Data;
-	char *dataEnd	= Data + dataLen;
+	const char *dataStart	= Data;
+	const char *dataEnd		= Data + dataLen;
 
 	for (ULONG i = 0; Data < dataEnd; i++)
 	{
@@ -207,7 +239,28 @@ SIG_DESCRIPTOR *DescriptorFromIDA(char *Data)
 	return desc;
 }
 
-SIG_DESCRIPTOR *DescriptorFromCRC(char *Data)
+SIG_DESCRIPTOR *DescriptorFromPEiD(const char *Data)
+{
+	// Replacer function
+	auto ReplaceStringInPlace = [](std::string& Subject, const std::string& Search, const std::string& Replace)
+	{
+		size_t pos = 0;
+
+		while ((pos = Subject.find(Search, pos)) != std::string::npos)
+		{
+			Subject.replace(pos, Search.length(), Replace);
+			pos += Replace.length();
+		}
+	};
+
+	// This is identical to IDA, just replace '??' with '?'
+	std::string newData(Data);
+	ReplaceStringInPlace(newData, "??", "?");
+
+	return DescriptorFromIDA(newData.c_str());
+}
+
+SIG_DESCRIPTOR *DescriptorFromCRC(const char *Data)
 {
 	// TODO
 	__debugbreak();

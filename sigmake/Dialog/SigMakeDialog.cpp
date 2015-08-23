@@ -30,6 +30,7 @@ void MakeSigDialogInit(HWND hwndDlg)
 	{
 	case SIG_CODE:	DescriptorToCode(desc, &data, &mask);	break;
 	case SIG_IDA:	DescriptorToIDA(desc, &data);			break;
+	case SIG_PEID:	DescriptorToPEiD(desc, &data);			break;
 	case SIG_CRC:	DescriptorToCRC(desc, &data, &mask);	break;
 	}
 
@@ -53,7 +54,9 @@ void MakeSigDialogInit(HWND hwndDlg)
 
 void MakeSigDialogConvert(HWND hwndDlg, SIGNATURE_TYPE To, SIGNATURE_TYPE From)
 {
+	//
 	// Don't convert if destination and source types are the same
+	//
 	if (To == From)
 		return;
 
@@ -66,40 +69,52 @@ void MakeSigDialogConvert(HWND hwndDlg, SIGNATURE_TYPE To, SIGNATURE_TYPE From)
 	GetWindowText(GetDlgItem(hwndDlg, IDC_SIGMAKE_EDIT1), data, dataLen);
 	GetWindowText(GetDlgItem(hwndDlg, IDC_SIGMAKE_EDIT2), mask, maskLen);
 
-	if (To == SIG_CODE && From == SIG_IDA)
+	//
+	// Convert string(s) to the incoming raw code descriptor
+	//
+	SIG_DESCRIPTOR *inDesc = nullptr;
+
+	switch (From)
 	{
-		SIG_DESCRIPTOR *desc = DescriptorFromIDA(data);
-
-		//
-		// Buffer is larger and needs reallocation
-		//
-		BridgeFree(data);
-		BridgeFree(mask);
-		DescriptorToCode(desc, &data, &mask);
-		BridgeFree(desc);
-	}
-	else if (To == SIG_IDA && From == SIG_CODE)
-	{
-		SIG_DESCRIPTOR *desc = DescriptorFromCode(data, mask);
-
-		//
-		// Buffer is reallocated
-		//
-		BridgeFree(data);
-		DescriptorToIDA(desc, &data);
-		BridgeFree(desc);
-
-		//
-		// Zero out old data
-		//
-		memset(mask, 0, maskLen);
+	case SIG_CODE:	inDesc = DescriptorFromCode(data, mask);	break;
+	case SIG_IDA:	inDesc = DescriptorFromIDA(data);			break;
+	case SIG_PEID:	inDesc = DescriptorFromPEiD(data);			break;
+	case SIG_CRC:	inDesc = DescriptorFromCRC(data);			break;
 	}
 
-	SetWindowText(GetDlgItem(hwndDlg, IDC_SIGMAKE_EDIT1), data);
-	SetWindowText(GetDlgItem(hwndDlg, IDC_SIGMAKE_EDIT2), mask);
-
+	//
+	// Free temporary allocations
+	//
 	BridgeFree(data);
 	BridgeFree(mask);
+
+	data = nullptr;
+	mask = nullptr;
+
+	//
+	// Convert raw code to destination strings
+	//
+	switch (To)
+	{
+	case SIG_CODE:	DescriptorToCode(inDesc, &data, &mask);	break;
+	case SIG_IDA:	DescriptorToIDA(inDesc, &data);			break;
+	case SIG_PEID:	DescriptorToPEiD(inDesc, &data);		break;
+	case SIG_CRC:	DescriptorToCRC(inDesc, &data, &mask);	break;
+	}
+
+	//
+	// Update dialog
+	//
+	SetWindowText(GetDlgItem(hwndDlg, IDC_SIGMAKE_EDIT1), data ? data : "");
+	SetWindowText(GetDlgItem(hwndDlg, IDC_SIGMAKE_EDIT2), mask ? mask : "");
+
+	if (data)
+		BridgeFree(data);
+
+	if (mask)
+		BridgeFree(mask);
+
+	BridgeFree(inDesc);
 }
 
 void MakeSigDialogExecute(HWND hwndDlg)
@@ -122,6 +137,7 @@ void MakeSigDialogExecute(HWND hwndDlg)
 	{
 	case SIG_CODE:	desc = DescriptorFromCode(data, mask);	break;
 	case SIG_IDA:	desc = DescriptorFromIDA(data);			break;
+	case SIG_PEID:	desc = DescriptorFromPEiD(data);		break;
 	case SIG_CRC:	desc = DescriptorFromCRC(data);			break;
 	}
 
@@ -129,7 +145,6 @@ void MakeSigDialogExecute(HWND hwndDlg)
 	// Scan
 	//
 	std::vector<duint> results;
-
 	PatternScan(desc, results);
 
 	//
@@ -193,6 +208,10 @@ INT_PTR CALLBACK MakeSigDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_IDA), BM_SETCHECK, BST_CHECKED, 0);
 			break;
 
+		case SIG_PEID:
+			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_PEID), BM_SETCHECK, BST_CHECKED, 0);
+			break;
+
 		case SIG_CRC:
 			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_CRC), BM_SETCHECK, BST_CHECKED, 0);
 			break;
@@ -219,6 +238,7 @@ INT_PTR CALLBACK MakeSigDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 			break;
 
 		case IDC_SIGMAKE_CANCEL:
+			// Cancel button; close dialog
 			CLOSE_WINDOW(hwndDlg, g_SigMakeDialog);
 			break;
 
@@ -230,6 +250,7 @@ INT_PTR CALLBACK MakeSigDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 			Settings::LastType = SIG_CODE;
 
 			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_IDA), BM_SETCHECK, BST_UNCHECKED, 0);
+			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_PEID), BM_SETCHECK, BST_UNCHECKED, 0);
 			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_CRC), BM_SETCHECK, BST_UNCHECKED, 0);
 			break;
 
@@ -241,6 +262,19 @@ INT_PTR CALLBACK MakeSigDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 			Settings::LastType = SIG_IDA;
 
 			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_CODE), BM_SETCHECK, BST_UNCHECKED, 0);
+			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_PEID), BM_SETCHECK, BST_UNCHECKED, 0);
+			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_CRC), BM_SETCHECK, BST_UNCHECKED, 0);
+			break;
+
+		case IDC_SIGMAKE_PEID:
+			// Convert sig
+			MakeSigDialogConvert(hwndDlg, SIG_PEID, Settings::LastType);
+
+			// Uncheck the other radio button and update last set variable
+			Settings::LastType = SIG_PEID;
+
+			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_CODE), BM_SETCHECK, BST_UNCHECKED, 0);
+			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_IDA), BM_SETCHECK, BST_UNCHECKED, 0);
 			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_CRC), BM_SETCHECK, BST_UNCHECKED, 0);
 			break;
 
@@ -252,6 +286,7 @@ INT_PTR CALLBACK MakeSigDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 			Settings::LastType = SIG_CRC;
 
 			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_CODE), BM_SETCHECK, BST_UNCHECKED, 0);
+			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_PEID), BM_SETCHECK, BST_UNCHECKED, 0);
 			SendMessage(GetDlgItem(hwndDlg, IDC_SIGMAKE_IDA), BM_SETCHECK, BST_UNCHECKED, 0);
 			break;
 		}
