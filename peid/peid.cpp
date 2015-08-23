@@ -123,8 +123,8 @@ duint PEiDPatternScan(const char *Pattern, bool EntryPoint, PBYTE ModuleCopy, du
 	//
 	if (EntryPoint)
 	{
-		//ModuleBase = 0;
-		//ModuleSize = 0;
+		//ModuleBase = ep_start;
+		//ModuleSize = ep_size;
 	}
 
 	//

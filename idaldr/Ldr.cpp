@@ -345,7 +345,7 @@ bool ApplyMapSymbols(char *Path, duint ModuleBase)
         {
             size_t sectionCount = GetPE32Data(modulePath, 0, UE_SECTIONNUMBER);
 
-            for (int i = 0; i < sectionCount; i++)
+            for (size_t i = 0; i < sectionCount; i++)
             {
                 MapFileSegment segdef;
                 memset(&segdef, 0, sizeof(segdef));

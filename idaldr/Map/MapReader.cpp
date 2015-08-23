@@ -246,16 +246,33 @@ bool MapFile::LoadSegment(char *Line)
 
 bool MapFile::LoadSymbols()
 {
-	/*
-	  Address         Publics by Value
-	  0001:00000000       _init_proc
-	*/
+	//
+	// Address         Publics by Value
+	// 0001:00000000       _init_proc
+	//
+	// Load regular symbols
 	char *startPos = strstr(m_FileData, "Address");
 
 	if (!startPos)
 	{
 		_plugin_logprintf("Couldn't find starting position for symbols\n");
 		return false;
+	}
+
+	if (!EnumerateLines(startPos, 'SYMB'))
+		return false;
+
+	//
+	// Static symbols
+	// 0001:00000027       _pre_c_init                00401027 f   MSVCRT:wcrtexe.obj
+	//
+	// Now load static symbols (these are optional)
+	startPos = strstr(m_FileData, "Static symbols");
+
+	if (!startPos)
+	{
+		_plugin_logprintf("Couldn't find starting position for static symbols, skipping\n");
+		return true;
 	}
 
 	return EnumerateLines(startPos, 'SYMB');
