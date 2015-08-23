@@ -9,7 +9,6 @@ void MenuEntryCallback(CBTYPE Type, PLUG_CB_MENUENTRY *Info)
 {
 	switch (Info->hEntry)
 	{
-	// IDALdr
 	case PLUGIN_MENU_LOADSIG:
 		OpenSelectionDialog("Open a signature file", "Signatures (*.sig)\0*.sig\0\0", false, ApplySignatureSymbols);
 		break;
@@ -22,6 +21,10 @@ void MenuEntryCallback(CBTYPE Type, PLUG_CB_MENUENTRY *Info)
 		OpenSelectionDialog("Open a MAP file", "Map files (*.map)\0*.map\0\0", false, ApplyMapSymbols);
 		break;
 
+	case PLUGIN_MENU_LOADPEID:
+		OpenSelectionDialog("Open a PEiD database", "Any file (*.*)\0*.*\0\0", false, ApplyPEiDSymbols);
+		break;
+
 	case PLUGIN_MENU_EXPORTDIF:
 		OpenSelectionDialog("Save a DIF file", "Diff files (*.dif)\0*.dif\0\0", true, ExportDiffSymbols);
 		break;
@@ -30,7 +33,6 @@ void MenuEntryCallback(CBTYPE Type, PLUG_CB_MENUENTRY *Info)
 		OpenSelectionDialog("Save a MAP file", "Map files (*.map)\0*.map\0\0", true, ExportMapSymbols);
 		break;
 
-	// SigMake
 	case PLUGIN_MENU_MAKESIG:
 		OpenSigMakeDialog();
 		break;

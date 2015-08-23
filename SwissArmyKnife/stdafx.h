@@ -5,6 +5,7 @@
 
 #include "../idaldr/stdafx.h"
 #include "../sigmake/stdafx.h"
+#include "../peid/peid.h"
 
 #include "Util.h"
 #include "Plugin.h"

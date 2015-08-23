@@ -2,4 +2,5 @@
 
 #include "../idaldr/stdafx.h"
 
-bool ApplySignatureSymbols(char *Path, duint ModuleBase);
+bool ApplyPEiDSymbols(char *Path, duint ModuleBase);
+duint PEiDPatternScan(const char *Pattern, bool EntryPoint, PBYTE ModuleCopy, duint ModuleBase, duint ModuleSize);

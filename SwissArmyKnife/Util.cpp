@@ -73,3 +73,14 @@ bool OpenSelectionDialog(const char *Title, const char *Filter, bool Save, bool(
 
 	return true;
 }
+
+void StringReplace(std::string& Subject, const std::string& Search, const std::string& Replace)
+{
+	size_t pos = 0;
+
+	while ((pos = Subject.find(Search, pos)) != std::string::npos)
+	{
+		Subject.replace(pos, Search.length(), Replace);
+		pos += Replace.length();
+	}
+}

@@ -120,9 +120,6 @@ SIG_DESCRIPTOR *GenerateSigFromCode(duint Start, duint End)
 	returnStatus = true;
 
 __freememory:
-	//
-	// Free the memory
-	//
 	if (processMemory)
 		BridgeFree(processMemory);
 

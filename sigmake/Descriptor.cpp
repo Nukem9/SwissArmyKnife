@@ -241,21 +241,9 @@ SIG_DESCRIPTOR *DescriptorFromIDA(const char *Data)
 
 SIG_DESCRIPTOR *DescriptorFromPEiD(const char *Data)
 {
-	// Replacer function
-	auto ReplaceStringInPlace = [](std::string& Subject, const std::string& Search, const std::string& Replace)
-	{
-		size_t pos = 0;
-
-		while ((pos = Subject.find(Search, pos)) != std::string::npos)
-		{
-			Subject.replace(pos, Search.length(), Replace);
-			pos += Replace.length();
-		}
-	};
-
 	// This is identical to IDA, just replace '??' with '?'
 	std::string newData(Data);
-	ReplaceStringInPlace(newData, "??", "?");
+	StringReplace(newData, "??", "?");
 
 	return DescriptorFromIDA(newData.c_str());
 }
