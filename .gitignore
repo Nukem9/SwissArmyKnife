@@ -35,3 +35,7 @@
 SwissArmyKnife/Debug/*
 SwissArmyKnife/Release/*
 SwissArmyKnife/x64/*
+
+# Zlib library
+!zlib_x64.lib
+!zlib_x86.lib
