@@ -147,6 +147,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\findcrypt\consts.cpp" />
+    <ClCompile Include="..\findcrypt\findcrypt.cpp" />
+    <ClCompile Include="..\findcrypt\sparse.cpp" />
     <ClCompile Include="..\idaldr\IDA\Crc16.cpp" />
     <ClCompile Include="..\idaldr\IDA\DiffReader.cpp" />
     <ClCompile Include="..\idaldr\IDA\DiffWriter.cpp" />
@@ -188,6 +191,7 @@
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\findcrypt\findcrypt.h" />
     <ClInclude Include="..\idaldr\IDA\Crc16.h" />
     <ClInclude Include="..\idaldr\IDA\Diff.h" />
     <ClInclude Include="..\idaldr\IDA\Sig.h" />

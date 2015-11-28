@@ -10,15 +10,15 @@ void MenuEntryCallback(CBTYPE Type, PLUG_CB_MENUENTRY *Info)
 	switch (Info->hEntry)
 	{
 	case PLUGIN_MENU_LOADSIG:
-		OpenSelectionDialog("Open a signature file", "Signatures (*.sig)\0*.sig\0\0", false, ApplySignatureSymbols);
+		OpenSelectionDialog("Open an IDA signature file", "Signatures (*.sig)\0*.sig\0\0", false, ApplySignatureSymbols);
 		break;
 
 	case PLUGIN_MENU_LOADDIF:
-		OpenSelectionDialog("Open a DIF file", "Diff files (*.dif)\0*.dif\0\0", false, ApplyDiffSymbols);
+		OpenSelectionDialog("Open an IDA DIF file", "Diff files (*.dif)\0*.dif\0\0", false, ApplyDiffSymbols);
 		break;
 
 	case PLUGIN_MENU_LOADMAP:
-		OpenSelectionDialog("Open a MAP file", "Map files (*.map)\0*.map\0\0", false, ApplyMapSymbols);
+		OpenSelectionDialog("Open a linker map file", "Map files (*.map)\0*.map\0\0", false, ApplyMapSymbols);
 		break;
 
 	case PLUGIN_MENU_LOADPEID:
@@ -33,6 +33,10 @@ void MenuEntryCallback(CBTYPE Type, PLUG_CB_MENUENTRY *Info)
 		OpenSelectionDialog("Save a MAP file", "Map files (*.map)\0*.map\0\0", true, ExportMapSymbols);
 		break;
 
+	case PLUGIN_MENU_FINDCRYPTO:
+		FindcryptScanModule();
+		break;
+
 	case PLUGIN_MENU_MAKESIG:
 		OpenSigMakeDialog();
 		break;
@@ -42,7 +46,7 @@ void MenuEntryCallback(CBTYPE Type, PLUG_CB_MENUENTRY *Info)
 		break;
 
 	case PLUGIN_MENU_ABOUT:
-		MessageBoxA(GuiGetWindowHandle(), "Plugin created by Nukem.\n\nSource code at:\nhttps://github.com/Nukem9/SwissArmyKnife", "About", 0);
+		MessageBoxA(GuiGetWindowHandle(), "Plugin created by Nukem.\n\nSource code at:\nhttps://github.com/Nukem9/SwissArmyKnife\n\nFindcrypt2-with-MMX:\nhttps://github.com/vlad902/findcrypt2-with-mmx", "About", 0);
 		break;
 	}
 
@@ -96,6 +100,10 @@ DLL_EXPORT void plugsetup(PLUG_SETUPSTRUCT *SetupStruct)
 	int exportMenu = _plugin_menuadd(g_MenuHandle, "Export");
 	_plugin_menuaddentry(exportMenu, PLUGIN_MENU_EXPORTDIF, "&DIF file");
 	_plugin_menuaddentry(exportMenu, PLUGIN_MENU_EXPORTMAP, "&MAP file");
+	_plugin_menuaddseparator(g_MenuHandle);
+
+	int cryptoMenu = _plugin_menuadd(g_MenuHandle, "Crypto");
+	_plugin_menuaddentry(cryptoMenu, PLUGIN_MENU_FINDCRYPTO, "&Findcrypt v2 with MMX");
 	_plugin_menuaddseparator(g_MenuHandle);
 
 	int signatureMenu = _plugin_menuadd(g_MenuHandle, "Signature");

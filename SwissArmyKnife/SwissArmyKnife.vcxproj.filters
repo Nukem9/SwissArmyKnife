@@ -40,6 +40,12 @@
     <Filter Include="zlib">
       <UniqueIdentifier>{d1106870-7021-4754-98d8-262b748e1467}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\findcrypt">
+      <UniqueIdentifier>{efa1ebcf-65cb-4e97-bda9-8ef88e0a9b48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\findcrypt">
+      <UniqueIdentifier>{79862f04-90af-4f86-a58c-284db79b1a7c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\idaldr\IDA\Crc16.cpp">
@@ -159,6 +165,15 @@
     <ClCompile Include="..\zlib\zutil.c">
       <Filter>zlib</Filter>
     </ClCompile>
+    <ClCompile Include="..\findcrypt\consts.cpp">
+      <Filter>Source Files\findcrypt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\findcrypt\findcrypt.cpp">
+      <Filter>Source Files\findcrypt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\findcrypt\sparse.cpp">
+      <Filter>Source Files\findcrypt</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\sigmake\resource.h">
@@ -277,6 +292,9 @@
     </ClInclude>
     <ClInclude Include="..\zlib\zutil.h">
       <Filter>zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\findcrypt\findcrypt.h">
+      <Filter>Header Files\findcrypt</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
