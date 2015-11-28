@@ -1142,6 +1142,20 @@ static void lm_init (s)
  *       -------------------------------------------------
  */
 
+#ifndef _WIN64
+unsigned char _BitScanForward64(unsigned long *r, unsigned __int64 x)
+{
+	unsigned char c = _BitScanForward(r, x);
+	if (!c)
+	{
+		c = _BitScanForward(r, x >> 32);
+		if (c)
+			*r += 32;
+	}
+	return c;
+}
+#endif
+
 static uint32_t longest_match(s, cur_match)
     deflate_state *s;
     IPos cur_match;                             /* current match */
