@@ -3,7 +3,7 @@
 #define POLY 0x8408
 
 /*
-//                                      16   12   5
+//                                     16   12   5
 // this is the CCITT CRC 16 polynomial X  + X  + X  + 1.
 // This works out to be 0x1021, but the way the algorithm works
 // lets us use 0x8408 (the reverse of the bit pattern).  The high

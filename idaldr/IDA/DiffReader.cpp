@@ -95,7 +95,7 @@ bool IDADiffReader::LoadPatch(char *Value, int Line)
 	// Scan for the entry
 	DiffFileEntry entry;
 
-	if (sscanf_s(Value, "%llx: %02X %02X", &entry.Offset, &entry.Old, &entry.New) <= 0)
+	if (sscanf_s(Value, "%llx: %hhX %hhX", &entry.Offset, &entry.Old, &entry.New) <= 0)
 		return false;
 
 	m_Patches.push_back(entry);

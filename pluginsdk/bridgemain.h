@@ -7,6 +7,9 @@
 #include <stdbool.h>
 #endif
 
+//list structure (and C++ wrapper)
+#include "bridgelist.h"
+
 //default structure alignments forced
 #ifdef _WIN64
 #pragma pack(push, 16)
@@ -37,7 +40,7 @@ extern "C"
 
 //Bridge defines
 #define MAX_SETTING_SIZE 65536
-#define DBG_VERSION 23
+#define DBG_VERSION 25
 
 //Bridge functions
 BRIDGE_IMPEXP const char* BridgeInit();
@@ -48,6 +51,8 @@ BRIDGE_IMPEXP bool BridgeSettingGet(const char* section, const char* key, char* 
 BRIDGE_IMPEXP bool BridgeSettingGetUint(const char* section, const char* key, duint* value);
 BRIDGE_IMPEXP bool BridgeSettingSet(const char* section, const char* key, const char* value);
 BRIDGE_IMPEXP bool BridgeSettingSetUint(const char* section, const char* key, duint value);
+BRIDGE_IMPEXP bool BridgeSettingFlush();
+BRIDGE_IMPEXP bool BridgeSettingRead(int* errorLine);
 BRIDGE_IMPEXP int BridgeGetDbgVersion();
 
 //Debugger defines
@@ -60,6 +65,7 @@ BRIDGE_IMPEXP int BridgeGetDbgVersion();
 #define MAX_STRING_SIZE 512
 #define MAX_ERROR_SIZE 512
 #define RIGHTS_STRING_SIZE (sizeof("ERWCG") + 1)
+#define MAX_SECTION_SIZE 10
 
 #define TYPE_VALUE 1
 #define TYPE_MEMORY 2
@@ -166,7 +172,10 @@ typedef enum
     DBG_GET_STRING_AT,              // param1=duint addr,                param2=unused
     DBG_GET_FUNCTIONS,              // param1=unused,                    param2=unused
     DBG_WIN_EVENT,                  // param1=MSG* message,              param2=long* result
-    DBG_WIN_EVENT_GLOBAL            // param1=MSG* message,              param2=unused
+    DBG_WIN_EVENT_GLOBAL,           // param1=MSG* message,              param2=unused
+    DBG_INITIALIZE_LOCKS,           // param1=unused,                    param2=unused
+    DBG_DEINITIALIZE_LOCKS,         // param1=unused,                    param2=unused
+    DBG_GET_TIME_WASTED_COUNTER     // param1=unused,                    param2=unused
 } DBGMSG;
 
 typedef enum
@@ -314,6 +323,7 @@ typedef struct
 {
     duint start; //OUT
     duint end; //OUT
+    duint instrcount; //OUT
 } FUNCTION;
 
 typedef struct
@@ -502,6 +512,12 @@ typedef struct
 
 typedef struct
 {
+    DWORD code;
+    const char* name;
+} LASTERROR;
+
+typedef struct
+{
     REGISTERCONTEXT regcontext;
     FLAGS flags;
     X87FPUREGISTER x87FPURegisters[8];
@@ -509,6 +525,7 @@ typedef struct
     MXCSRFIELDS MxCsrFields;
     X87STATUSWORDFIELDS x87StatusWordFields;
     X87CONTROLWORDFIELDS x87ControlWordFields;
+    LASTERROR lastError;
 } REGDUMP;
 
 typedef struct
@@ -539,8 +556,8 @@ typedef struct
 typedef struct
 {
     int ThreadNumber;
-    HANDLE hThread;
-    DWORD dwThreadId;
+    HANDLE Handle;
+    DWORD ThreadId;
     duint ThreadStartAddress;
     duint ThreadLocalBase;
     char threadName[MAX_THREAD_NAME_SIZE];
@@ -675,9 +692,14 @@ BRIDGE_IMPEXP bool DbgGetStringAt(duint addr, char* text);
 BRIDGE_IMPEXP const DBGFUNCTIONS* DbgFunctions();
 BRIDGE_IMPEXP bool DbgWinEvent(MSG* message, long* result);
 BRIDGE_IMPEXP bool DbgWinEventGlobal(MSG* message);
+BRIDGE_IMPEXP bool DbgIsRunning();
+BRIDGE_IMPEXP duint DbgGetTimeWastedCounter();
 
 //Gui defines
 #define GUI_PLUGIN_MENU 0
+#define GUI_DISASM_MENU 1
+#define GUI_DUMP_MENU 2
+#define GUI_STACK_MENU 3
 
 #define GUI_DISASSEMBLY 0
 #define GUI_DUMP 1
@@ -745,8 +767,25 @@ typedef enum
     GUI_UPDATE_CALLSTACK,           // param1=unused,               param2=unused
     GUI_SYMBOL_REFRESH_CURRENT,     // param1=unused,               param2=unused
     GUI_UPDATE_MEMORY_VIEW,         // param1=unused,               param2=unused
-    GUI_REF_INITIALIZE              // param1=const char* name      param2=unused
+    GUI_REF_INITIALIZE,             // param1=const char* name,     param2=unused
+    GUI_LOAD_SOURCE_FILE,           // param1=const char* path,     param2=line
+    GUI_MENU_SET_ICON,              // param1=int hMenu,            param2=ICONINFO*
+    GUI_MENU_SET_ENTRY_ICON,        // param1=int hEntry,           param2=ICONINFO*
+    GUI_SHOW_CPU,                   // param1=unused,               param2=unused
+    GUI_ADD_QWIDGET_TAB,            // param1=QWidget*,             param2=unused
+    GUI_SHOW_QWIDGET_TAB,           // param1=QWidget*,             param2=unused
+    GUI_CLOSE_QWIDGET_TAB,          // param1=QWidget*,             param2=unused
+    GUI_EXECUTE_ON_GUI_THREAD,      // param1=GUICALLBACK,          param2=unused
+    GUI_UPDATE_TIME_WASTED_COUNTER, // param1=unused,               param2=unused
+    GUI_SET_GLOBAL_NOTES,           // param1=const char* text,     param2=unused
+    GUI_GET_GLOBAL_NOTES,           // param1=char** text,          param2=unused
+    GUI_SET_DEBUGGEE_NOTES,         // param1=const char* text,     param2=unused
+    GUI_GET_DEBUGGEE_NOTES,         // param1=char** text,          param2=unused
+    GUI_DUMP_AT_N,                  // param1=int index,            param2=duint va
 } GUIMSG;
+
+//GUI Typedefs
+typedef void (*GUICALLBACK)();
 
 //GUI structures
 typedef struct
@@ -761,6 +800,12 @@ typedef struct
     duint start;
     duint end;
 } SELECTIONDATA;
+
+typedef struct
+{
+    const void* data;
+    duint size;
+} ICONDATA;
 
 //GUI functions
 BRIDGE_IMPEXP void GuiDisasmAt(duint addr, duint cip);
@@ -821,7 +866,20 @@ BRIDGE_IMPEXP void GuiUpdateSideBar();
 BRIDGE_IMPEXP void GuiRepaintTableView();
 BRIDGE_IMPEXP void GuiUpdatePatches();
 BRIDGE_IMPEXP void GuiUpdateCallStack();
-BRIDGE_IMPEXP void GuiUpdateMemoryView();
+BRIDGE_IMPEXP void GuiLoadSourceFile(const char* path, int line);
+BRIDGE_IMPEXP void GuiMenuSetIcon(int hMenu, const ICONDATA* icon);
+BRIDGE_IMPEXP void GuiMenuSetEntryIcon(int hEntry, const ICONDATA* icon);
+BRIDGE_IMPEXP void GuiShowCpu();
+BRIDGE_IMPEXP void GuiAddQWidgetTab(void* qWidget);
+BRIDGE_IMPEXP void GuiShowQWidgetTab(void* qWidget);
+BRIDGE_IMPEXP void GuiCloseQWidgetTab(void* qWidget);
+BRIDGE_IMPEXP void GuiExecuteOnGuiThread(GUICALLBACK cbGuiThread);
+BRIDGE_IMPEXP void GuiUpdateTimeWastedCounter();
+BRIDGE_IMPEXP void GuiSetGlobalNotes(const char* text);
+BRIDGE_IMPEXP void GuiGetGlobalNotes(char** text);
+BRIDGE_IMPEXP void GuiSetDebuggeeNotes(const char* text);
+BRIDGE_IMPEXP void GuiGetDebuggeeNotes(char** text);
+BRIDGE_IMPEXP void GuiDumpAtN(duint va, int index);
 
 #ifdef __cplusplus
 }
