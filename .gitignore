@@ -3,6 +3,9 @@
 *.lo
 *.o
 *.obj
+*.exp
+*.iobj
+*.ipdb
 
 # Precompiled Headers
 *.gch
@@ -12,6 +15,8 @@
 *.so
 *.dylib
 *.dll
+*.dp32
+*.dp64
 
 # Fortran module files
 *.mod
