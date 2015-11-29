@@ -13,9 +13,9 @@ Various utilities for extending functionality in [x64dbg](https://github.com/x64
 * Allows for loading linker map files (*.map) produced by many compilers. Some information is located [here](http://www.codeproject.com/Articles/3472/Finding-crash-information-using-the-MAP-file). At the moment, exporting such files is not possible with the plugin API.
 
 <br>
-### Linker MAP Symbols
+### PEiD
 ------
-* Parses and loads PEiD signature databases.
+* Parses and loads [PEiD](https://www.aldeid.com/wiki/PEiD) signature databases.
 
 <br>
 ### Code Signatures
