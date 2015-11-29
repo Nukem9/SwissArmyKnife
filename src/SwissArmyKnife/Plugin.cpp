@@ -103,7 +103,7 @@ DLL_EXPORT void plugsetup(PLUG_SETUPSTRUCT *SetupStruct)
 	_plugin_menuaddseparator(g_MenuHandle);
 
 	int cryptoMenu = _plugin_menuadd(g_MenuHandle, "Crypto");
-	_plugin_menuaddentry(cryptoMenu, PLUGIN_MENU_FINDCRYPTO, "&Findcrypt v2 with MMX");
+	_plugin_menuaddentry(cryptoMenu, PLUGIN_MENU_FINDCRYPTO, "&Findcrypt2 with AES-NI");
 	_plugin_menuaddseparator(g_MenuHandle);
 
 	int signatureMenu = _plugin_menuadd(g_MenuHandle, "Signature");
