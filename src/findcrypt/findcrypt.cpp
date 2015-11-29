@@ -241,7 +241,7 @@ void Findcrypt::ShowAddress(duint Address)
 
 void FindcryptScanRange(duint Start, duint End)
 {
-	_plugin_logprintf("Starting a scan of range %p to %p...\n", Start, End);
+	dprintf("Starting a scan of range %p to %p...\n", Start, End);
 
 	// Threaded lambda
 	std::thread t([&]
@@ -260,4 +260,40 @@ void FindcryptScanModule()
 	duint moduleEnd = moduleStart + DbgFunctions()->ModSizeFromAddr(moduleStart);
 
 	FindcryptScanRange(moduleStart, moduleEnd);
+}
+
+void Plugin_FindcryptLogo()
+{
+	dprintf("---- Findcrypt v2 with AES-NI extensions ----\n");
+	dprintf("Available constant checking:\n\t");
+
+	//
+	// Displays the startup information for this build of findcrypt
+	//
+	int counter = 1;
+
+	auto DisplayArray = [&](const array_info_t *ai)
+	{
+		for (const char *prev = nullptr; ai->size != 0; ai++)
+		{
+			if (!prev || (prev && _stricmp(prev, ai->algorithm) != 0))
+			{
+				dprintf("%s, ", ai->algorithm);
+
+				if ((++counter) % 10 == 0)
+					dprintf("\n\t");
+			}
+
+			prev = ai->algorithm;
+		}
+	};
+
+	// First list all constants
+	DisplayArray(non_sparse_consts);
+
+	// Now list all sparse constants
+	DisplayArray(sparse_consts);
+
+	// Final newline
+	dprintf("\n");
 }

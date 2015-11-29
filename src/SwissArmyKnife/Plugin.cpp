@@ -37,6 +37,10 @@ void MenuEntryCallback(CBTYPE Type, PLUG_CB_MENUENTRY *Info)
 		FindcryptScanModule();
 		break;
 
+	case PLUGIN_MENU_AESFINDER:
+		AESFinderScanModule();
+		break;
+
 	case PLUGIN_MENU_MAKESIG:
 		OpenSigMakeDialog();
 		break;
@@ -46,7 +50,15 @@ void MenuEntryCallback(CBTYPE Type, PLUG_CB_MENUENTRY *Info)
 		break;
 
 	case PLUGIN_MENU_ABOUT:
-		MessageBoxA(GuiGetWindowHandle(), "Plugin created by Nukem.\n\nSource code at:\nhttps://github.com/Nukem9/SwissArmyKnife\n\nFindcrypt2-with-MMX:\nhttps://github.com/vlad902/findcrypt2-with-mmx", "About", 0);
+		MessageBoxA(GuiGetWindowHandle(),
+			"Plugin created by Nukem.\n\n"
+			"Source code at:\n"
+			"https://github.com/Nukem9/SwissArmyKnife"
+			"\n\nFindcrypt2-with-MMX:\n"
+			"https://github.com/vlad902/findcrypt2-with-mmx"
+			"\n\nAES-Finder:\n"
+			"https://github.com/mmozeiko/aes-finder"
+			, "About", 0);
 		break;
 	}
 
@@ -69,6 +81,11 @@ DLL_EXPORT bool pluginit(PLUG_INITSTRUCT *InitStruct)
 	// Update all checkbox settings
 	Settings::InitIni();
 	Settings::Load();
+
+	// Initialization messages
+	Plugin_FindcryptLogo();
+	Plugin_AESFinderLogo();
+
 	return true;
 }
 
@@ -104,6 +121,7 @@ DLL_EXPORT void plugsetup(PLUG_SETUPSTRUCT *SetupStruct)
 
 	int cryptoMenu = _plugin_menuadd(g_MenuHandle, "Crypto");
 	_plugin_menuaddentry(cryptoMenu, PLUGIN_MENU_FINDCRYPTO, "&Findcrypt2 with AES-NI");
+	_plugin_menuaddentry(cryptoMenu, PLUGIN_MENU_AESFINDER, "&AES-Finder");
 	_plugin_menuaddseparator(g_MenuHandle);
 
 	int signatureMenu = _plugin_menuadd(g_MenuHandle, "Signature");

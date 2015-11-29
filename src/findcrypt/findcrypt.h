@@ -96,3 +96,5 @@ private:
 
 void FindcryptScanRange(duint Start, duint End);
 void FindcryptScanModule();
+
+void Plugin_FindcryptLogo();

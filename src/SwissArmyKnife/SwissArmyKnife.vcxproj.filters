@@ -46,6 +46,12 @@
     <Filter Include="Header Files\findcrypt">
       <UniqueIdentifier>{79862f04-90af-4f86-a58c-284db79b1a7c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\aes-finder">
+      <UniqueIdentifier>{47015d2c-09c1-40be-bd68-19929e0c5bdb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\aes-finder">
+      <UniqueIdentifier>{5a29eb48-8a02-4d5f-883d-8d32b3df7c92}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\idaldr\IDA\Crc16.cpp">
@@ -174,6 +180,9 @@
     <ClCompile Include="..\findcrypt\sparse.cpp">
       <Filter>Source Files\findcrypt</Filter>
     </ClCompile>
+    <ClCompile Include="..\aes-finder\aes-finder.cpp">
+      <Filter>Source Files\aes-finder</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\sigmake\resource.h">
@@ -295,6 +304,12 @@
     </ClInclude>
     <ClInclude Include="..\findcrypt\findcrypt.h">
       <Filter>Header Files\findcrypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\aes-finder\aes-finder.h">
+      <Filter>Header Files\aes-finder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\aes-finder\aes-finder-test.h">
+      <Filter>Header Files\aes-finder</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

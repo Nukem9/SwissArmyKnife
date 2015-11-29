@@ -155,6 +155,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\aes-finder\aes-finder.cpp" />
     <ClCompile Include="..\findcrypt\consts.cpp" />
     <ClCompile Include="..\findcrypt\findcrypt.cpp" />
     <ClCompile Include="..\findcrypt\sparse.cpp" />
@@ -199,6 +200,8 @@
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\aes-finder\aes-finder-test.h" />
+    <ClInclude Include="..\aes-finder\aes-finder.h" />
     <ClInclude Include="..\findcrypt\findcrypt.h" />
     <ClInclude Include="..\idaldr\IDA\Crc16.h" />
     <ClInclude Include="..\idaldr\IDA\Diff.h" />

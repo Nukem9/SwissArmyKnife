@@ -11,6 +11,8 @@
 //
 // X64DBG
 //
+#define dprintf _plugin_logprintf
+
 #ifdef _WIN64
 #pragma comment(lib, "../pluginsdk/x64dbg.lib")
 #pragma comment(lib, "../pluginsdk/x64bridge.lib")
@@ -38,6 +40,7 @@
 #include "../sigmake/stdafx.h"
 #include "../peid/peid.h"
 #include "../findcrypt/findcrypt.h"
+#include "../aes-finder/aes-finder.h"
 
 #include "Util.h"
 #include "Plugin.h"
