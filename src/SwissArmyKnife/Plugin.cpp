@@ -58,6 +58,8 @@ void MenuEntryCallback(CBTYPE Type, PLUG_CB_MENUENTRY *Info)
 			"https://github.com/vlad902/findcrypt2-with-mmx"
 			"\n\nAES-Finder:\n"
 			"https://github.com/mmozeiko/aes-finder"
+			"\n\nZLIB:\n"
+			"http://www.zlib.net/"
 			, "About", 0);
 		break;
 	}

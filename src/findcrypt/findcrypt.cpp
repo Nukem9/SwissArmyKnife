@@ -54,7 +54,7 @@ void Findcrypt::VerifyConstants(const array_info_t *consts)
 
 		if (!myset.insert(s).second)
 		{
-			_plugin_logprintf("duplicate array %s!", ptr->name);
+			dprintf("duplicate array %s!", ptr->name);
 			__debugbreak();
 		}
 	}
@@ -65,7 +65,7 @@ void Findcrypt::ScanConstants()
 	int arrayCount = 0;
 	int aesniCount = 0;
 
-	_plugin_logprintf("Searching for crypto constants...\n");
+	dprintf("Searching for crypto constants...\n");
 	for (duint ea = m_StartAddress; ea < m_EndAddress; ea = ea + 1)
 	{
 		// Update the status bar every 65k bytes
@@ -82,7 +82,7 @@ void Findcrypt::ScanConstants()
 
 			if (MatchArrayPattern(ea, ptr))
 			{
-				_plugin_logprintf("%p: Found const array %s (used in %s)\n", ea, ptr->name, ptr->algorithm);
+				dprintf("%p: Found const array %s (used in %s)\n", ea, ptr->name, ptr->algorithm);
 				DbgSetAutoCommentAt(ea, ptr->algorithm);
 				DbgSetAutoLabelAt(ea, ptr->name);
 				arrayCount++;
@@ -98,7 +98,7 @@ void Findcrypt::ScanConstants()
 
 			if (MatchSparsePattern(ea, ptr))
 			{
-				_plugin_logprintf("%p: Found sparse constants for %s\n", ea, ptr->algorithm);
+				dprintf("%p: Found sparse constants for %s\n", ea, ptr->algorithm);
 				DbgSetAutoCommentAt(ea, ptr->algorithm);
 				arrayCount++;
 				break;
@@ -106,7 +106,7 @@ void Findcrypt::ScanConstants()
 		}
 	}
 
-	_plugin_logprintf("Searching for MMX AES instructions...\n");
+	dprintf("Searching for MMX AES instructions...\n");
 	for (duint ea = m_StartAddress; ea < m_EndAddress; ea = ea + 1)
 	{
 		// Update the status bar every 65k bytes
@@ -133,7 +133,7 @@ void Findcrypt::ScanConstants()
 
 			if (instruction)
 			{
-				_plugin_logprintf("%p: May be %s\n", ea, instruction);
+				dprintf("%p: May be %s\n", ea, instruction);
 				aesniCount++;
 			}
 		}
@@ -179,7 +179,7 @@ bool Findcrypt::MatchArrayPattern(duint Address, const array_info_t *ai)
 				return false;
 			break;
 		default:
-			_plugin_logprintf("interr: unexpected array '%s' element size %d\n",
+			dprintf("interr: unexpected array '%s' element size %d\n",
 				ai->name, ai->elsize);
 			__debugbreak();
 		}
@@ -265,7 +265,11 @@ void FindcryptScanModule()
 void Plugin_FindcryptLogo()
 {
 	dprintf("---- Findcrypt v2 with AES-NI extensions ----\n");
-	dprintf("Available constant checking:\n\t");
+	dprintf("Executing self test...\n");
+
+	Findcrypt test(0, 1);
+	test.VerifyConstants(non_sparse_consts);
+	test.VerifyConstants(sparse_consts);
 
 	//
 	// Displays the startup information for this build of findcrypt
@@ -288,12 +292,8 @@ void Plugin_FindcryptLogo()
 		}
 	};
 
-	// First list all constants
+	dprintf("Available constant checking:\n\t");
 	DisplayArray(non_sparse_consts);
-
-	// Now list all sparse constants
 	DisplayArray(sparse_consts);
-
-	// Final newline
 	dprintf("\n");
 }
