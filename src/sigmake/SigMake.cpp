@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-const static duint CodeSizeMinimum = 5;			// 05 bytes
+const static duint CodeSizeMinimum = 1;			// 01 bytes
 const static duint CodeSizeMaximum = 64 * 1024;	// 64 kilobytes
 
 SIG_DESCRIPTOR *GenerateSigFromCode(duint Start, duint End)

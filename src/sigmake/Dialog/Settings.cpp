@@ -58,7 +58,7 @@ namespace Settings
 		auto SetProfileInt = [](const char *Setting, int Value) -> void
 		{
 			char temp[32];
-			sprintf_s(temp, "%i", (Value) ? 1 : 0);
+			sprintf_s(temp, "%i", Value);
 
 			WritePrivateProfileString("Options", Setting, temp, IniPath);
 		};
