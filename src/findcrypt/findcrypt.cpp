@@ -32,6 +32,9 @@ Findcrypt::Findcrypt(duint VirtualStart, duint VirtualEnd)
 	m_DataSize		= VirtualEnd - VirtualStart;
 	m_Data			= (PBYTE)malloc(m_DataSize);
 
+	m_AESNICount	= 0;
+	m_CryptoCount	= 0;
+
 	// Read the remote memory into the local buffer
 	if (!DbgMemRead(VirtualStart, m_Data, m_DataSize))
 		memset(m_Data, 0, m_DataSize);
@@ -62,10 +65,6 @@ void Findcrypt::VerifyConstants(const array_info_t *consts)
 
 void Findcrypt::ScanConstants()
 {
-	int arrayCount = 0;
-	int aesniCount = 0;
-
-	dprintf("Searching for crypto constants...\n");
 	for (duint ea = m_StartAddress; ea < m_EndAddress; ea = ea + 1)
 	{
 		// Update the status bar every 65k bytes
@@ -85,7 +84,7 @@ void Findcrypt::ScanConstants()
 				dprintf("%p: Found const array %s (used in %s)\n", ea, ptr->name, ptr->algorithm);
 				DbgSetAutoCommentAt(ea, ptr->algorithm);
 				DbgSetAutoLabelAt(ea, ptr->name);
-				arrayCount++;
+				m_CryptoCount++;
 				break;
 			}
 		}
@@ -100,13 +99,12 @@ void Findcrypt::ScanConstants()
 			{
 				dprintf("%p: Found sparse constants for %s\n", ea, ptr->algorithm);
 				DbgSetAutoCommentAt(ea, ptr->algorithm);
-				arrayCount++;
+				m_CryptoCount++;
 				break;
 			}
 		}
 	}
 
-	dprintf("Searching for MMX AES instructions...\n");
 	for (duint ea = m_StartAddress; ea < m_EndAddress; ea = ea + 1)
 	{
 		// Update the status bar every 65k bytes
@@ -134,12 +132,10 @@ void Findcrypt::ScanConstants()
 			if (instruction)
 			{
 				dprintf("%p: May be %s\n", ea, instruction);
-				aesniCount++;
+				m_AESNICount++;
 			}
 		}
 	}
-
-	_plugin_logprintf("Found %d possible AES-NI instructions and %d constant arrays\n", aesniCount, arrayCount);
 }
 
 BYTE Findcrypt::GetFirstByte(const array_info_t *ai)
@@ -241,17 +237,13 @@ void Findcrypt::ShowAddress(duint Address)
 
 void FindcryptScanRange(duint Start, duint End)
 {
-	dprintf("Starting a scan of range %p to %p...\n", Start, End);
+	dprintf("Starting a crypto scan of range %p to %p...\n", Start, End);
 
-	// Threaded lambda
-	std::thread t([&]
-	{
-		Findcrypt scanner(Start, End);
-		scanner.ScanConstants();
-	});
-	
-	// Allow the thread to run outside of this function scope
-	t.detach();
+	// Run on this thread (which should be a command thread)
+	Findcrypt scanner(Start, End);
+	scanner.ScanConstants();
+
+	dprintf("Found %d possible AES-NI instructions and %d constant arrays.\n", scanner.AESNICount(), scanner.CryptoCount());
 }
 
 void FindcryptScanModule()
@@ -260,6 +252,28 @@ void FindcryptScanModule()
 	duint moduleEnd = moduleStart + DbgFunctions()->ModSizeFromAddr(moduleStart);
 
 	FindcryptScanRange(moduleStart, moduleEnd);
+}
+
+void FindcryptScanAll()
+{
+	int totalAES	= 0;
+	int totalCrypto	= 0;
+
+	dprintf("Starting a crypto scan for all memory ranges...\n");
+
+	DbgEnumMemoryRanges([&](duint Start, duint End)
+	{
+		Findcrypt scanner(Start, End);
+		scanner.ScanConstants();
+
+		// Increment counters
+		totalAES	+= scanner.AESNICount();
+		totalCrypto += scanner.CryptoCount();
+
+		return true;
+	});
+
+	dprintf("Found %d possible AES-NI instructions and %d constant arrays.\n", totalAES, totalCrypto);
 }
 
 void Plugin_FindcryptLogo()

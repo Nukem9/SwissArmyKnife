@@ -4,5 +4,6 @@
 
 void AESFinderScanRange(duint Start, duint End);
 void AESFinderScanModule();
+void AESFinderScanAll();
 
 void Plugin_AESFinderLogo();

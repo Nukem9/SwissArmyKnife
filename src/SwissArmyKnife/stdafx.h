@@ -7,6 +7,7 @@
 // WINDOWS
 //
 #include <windows.h>
+#include <functional>
 
 //
 // X64DBG
@@ -44,3 +45,4 @@
 
 #include "Util.h"
 #include "Plugin.h"
+#include "Commands.h"

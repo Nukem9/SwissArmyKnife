@@ -196,6 +196,7 @@
     <ClCompile Include="..\zlib\trees.c" />
     <ClCompile Include="..\zlib\uncompr.c" />
     <ClCompile Include="..\zlib\zutil.c" />
+    <ClCompile Include="Commands.cpp" />
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
@@ -239,6 +240,7 @@
     <ClInclude Include="..\zlib\zconf.h" />
     <ClInclude Include="..\zlib\zlib.h" />
     <ClInclude Include="..\zlib\zutil.h" />
+    <ClInclude Include="Commands.h" />
     <ClInclude Include="Plugin.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Util.h" />

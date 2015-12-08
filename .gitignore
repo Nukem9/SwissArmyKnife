@@ -40,3 +40,4 @@
 SwissArmyKnife/Debug/*
 SwissArmyKnife/Release/*
 SwissArmyKnife/x64/*
+*.opendb

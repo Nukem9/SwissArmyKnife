@@ -29,6 +29,30 @@ duint DbgGetCurrentModule()
 	return moduleBase;
 }
 
+bool DbgEnumMemoryRanges(std::function<bool(duint Start, duint End)> Callback)
+{
+	// Request all registered memory ranges from debugger
+	MEMMAP map;
+
+	if (!DbgMemMap(&map))
+		return false;
+
+	// No memory ranges listed
+	if (map.count <= 0)
+		return false;
+
+	for (int i = 0; i < map.count; i++)
+	{
+		duint base	= (duint)map.page[i].mbi.BaseAddress;
+		duint end	= base + map.page[i].mbi.RegionSize;
+
+		if (!Callback(base, end))
+			return false;
+	}
+
+	return true;
+}
+
 bool OpenSelectionDialog(const char *Title, const char *Filter, bool Save, bool(*Callback)(char *, duint))
 {
 	duint moduleBase = DbgGetCurrentModule();

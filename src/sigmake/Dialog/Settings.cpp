@@ -18,7 +18,7 @@ namespace Settings
 		GetCurrentDirectory(ARRAYSIZE(IniPath), IniPath);
 
 		// Append the file name
-		strcat_s(IniPath, "\\sigmake_options.ini");
+		strcat_s(IniPath, "\\swa_settings.ini");
 
 		// Create the file if it doesn't exist
 		HANDLE file = CreateFile(IniPath, GENERIC_READ | GENERIC_WRITE, 0, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);

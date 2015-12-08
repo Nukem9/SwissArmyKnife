@@ -183,6 +183,9 @@
     <ClCompile Include="..\aes-finder\aes-finder.cpp">
       <Filter>Source Files\aes-finder</Filter>
     </ClCompile>
+    <ClCompile Include="Commands.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\sigmake\resource.h">
@@ -310,6 +313,9 @@
     </ClInclude>
     <ClInclude Include="..\aes-finder\aes-finder-test.h">
       <Filter>Header Files\aes-finder</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

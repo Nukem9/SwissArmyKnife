@@ -904,9 +904,10 @@ static int aes_detect_dec(const uint32_t* ctx, uint8_t* key)
     return 0;
 }
 
-static void find_keys(duint Start, duint End)
+int find_keys(duint Start, duint End)
 {
-	dprintf("Starting a scan of range %p to %p...\n", Start, End);
+	// Counter
+	int keysFound = 0;
 
 	// Get a copy of the virtual memory
 	uint64_t total = End - Start;
@@ -918,7 +919,6 @@ static void find_keys(duint Start, duint End)
 
 	uint64_t avail = total;
 	uint64_t addr = Start;
-	clock_t t0 = clock();
 	uint32_t offset = 0;
 
 	if (avail >= 60)
@@ -928,27 +928,29 @@ static void find_keys(duint Start, duint End)
 			uint8_t key[32];
 			if (int len = aes_detect_enc((const uint32_t*)&buffer[offset], key))
 			{
-				printf("[%p] Found AES-%d encryption key: ", (void*)addr, len * 8);
+				dprintf("[%p] Found AES-%d encryption key: ", (void*)addr, len * 8);
 				for (int i = 0; i < len; i++)
 				{
-					printf("%02x", key[i]);
+					dprintf("%02x", key[i]);
 				}
-				printf("\n");
+				dprintf("\n");
 
 				offset += 28 + len;
 				addr += 28 + len;
+				keysFound++;
 			}
 			else if (int len = aes_detect_dec((const uint32_t*)&buffer[offset], key))
 			{
-				printf("[%p] Found AES-%d decryption key: ", (void*)addr, len * 8);
+				dprintf("[%p] Found AES-%d decryption key: ", (void*)addr, len * 8);
 				for (int i = 0; i < len; i++)
 				{
-					printf("%02x", key[i]);
+					dprintf("%02x", key[i]);
 				}
-				printf("\n");
+				dprintf("\n");
 
 				offset += 28 + len;
 				addr += 28 + len;
+				keysFound++;
 			}
 			else
 			{
@@ -963,15 +965,14 @@ static void find_keys(duint Start, duint End)
 	// Free buffer
 	free(buffer);
 
-	clock_t t1 = clock();
-	double time = double(t1 - t0) / CLOCKS_PER_SEC;
-	const double MB = 1024.0 * 1024.0;
-	dprintf("Processed %.2f MB, speed = %.2f MB/s\n", total / MB, total / MB / time);
+	return keysFound;
 }
 
 void AESFinderScanRange(duint Start, duint End)
 {
-	find_keys(Start, End);
+	dprintf("Starting an AES key scan of range %p to %p...\n", Start, End);
+	int keyCount = find_keys(Start, End);
+	dprintf("Found %d possible AES encryption or decryption keys.\n", keyCount);
 }
 
 void AESFinderScanModule()
@@ -980,6 +981,35 @@ void AESFinderScanModule()
 	duint moduleEnd = moduleStart + DbgFunctions()->ModSizeFromAddr(moduleStart);
 
 	AESFinderScanRange(moduleStart, moduleEnd);
+}
+
+void AESFinderScanAll()
+{
+	// Performance counting
+	clock_t startTime	= clock();
+	duint totalSize		= 0;
+	int totalKeys		= 0;
+
+	dprintf("Starting an AES key scan for all memory ranges...\n");
+
+	DbgEnumMemoryRanges([&](duint Start, duint End)
+	{
+		// Increment number of bytes read
+		totalSize += (End - Start);
+
+		// Run scan
+		totalKeys += find_keys(Start, End);
+		return true;
+	});
+
+	// Number of keys found
+	dprintf("Found %d possible AES encryption or decryption keys.\n", totalKeys);
+
+	// Tell the user how long it took
+	clock_t endTime = clock();
+	double time = double(endTime - startTime) / CLOCKS_PER_SEC;
+	const double MB = 1024.0 * 1024.0;
+	dprintf("Processed %.2f MB, speed = %.2f MB/s.\n", totalSize / MB, totalSize / MB / time);
 }
 
 #include "aes-finder-test.h"

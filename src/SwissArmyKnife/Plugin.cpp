@@ -80,9 +80,12 @@ DLL_EXPORT bool pluginit(PLUG_INITSTRUCT *InitStruct)
 	// Add any of the callbacks
 	_plugin_registercallback(g_PluginHandle, CB_MENUENTRY, (CBPLUGIN)MenuEntryCallback);
 
-	// Update all checkbox settings
+	// Update all check box settings
 	Settings::InitIni();
 	Settings::Load();
+
+	// Commands
+	Cmd_RegisterCommands();
 
 	// Initialization messages
 	Plugin_FindcryptLogo();

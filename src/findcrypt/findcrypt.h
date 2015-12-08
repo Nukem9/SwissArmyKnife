@@ -41,6 +41,16 @@ public:
 	void ScanConstants();
 	void VerifyConstants(const array_info_t *consts);
 
+	int AESNICount()
+	{
+		return m_AESNICount;
+	}
+
+	int CryptoCount()
+	{
+		return m_CryptoCount;
+	}
+
 protected:
 	BYTE GetFirstByte(const array_info_t *ai);
 	bool MatchArrayPattern(duint Address, const array_info_t *ai);
@@ -92,9 +102,13 @@ private:
 	duint m_EndAddress;
 	duint m_DataSize;
 	PBYTE m_Data;
+
+	int m_AESNICount;
+	int m_CryptoCount;
 };
 
 void FindcryptScanRange(duint Start, duint End);
 void FindcryptScanModule();
+void FindcryptScanAll();
 
 void Plugin_FindcryptLogo();

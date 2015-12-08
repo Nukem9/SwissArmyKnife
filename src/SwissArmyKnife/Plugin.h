@@ -4,9 +4,10 @@
 #define DLL_EXPORT __declspec(dllexport)
 #endif // DLL_EXPORT
 
-extern HMODULE g_LocalDllHandle;
+extern int g_MenuHandle;
+extern int g_PluginHandle;
 
-duint DbgGetCurrentModule();
+extern HMODULE g_LocalDllHandle;
 
 enum
 {
