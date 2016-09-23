@@ -335,6 +335,9 @@ bool ApplyMapSymbols(char *Path, duint ModuleBase)
     //
     auto& segments = map.GetSegments();
 
+	if (!Settings::UseSegments)
+		segments.clear();
+
 	// Use the executable sections as segments when they are not supplied
 	// in the file
     if (segments.empty())

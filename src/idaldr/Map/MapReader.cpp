@@ -117,7 +117,7 @@ bool MapFile::EnumerateLines(char *Start, int Type)
 			*eol = '\0';
 
 		// If the delimiter is not present, the line is not valid
-		if (!strchr(ptr, ':'))
+		if (!strchr(ptr, ':') && !strchr(ptr, ';'))
 			break;
 
 		if (Type == 'SEGM' && !LoadSegment(ptr))
@@ -302,6 +302,9 @@ bool MapFile::LoadSymbol(char *Line)
 		if (!bufPtr)
 			break;
 	}
+
+	if (!strcmp(tokens[1], "function") || !strcmp(tokens[1], "procedure"))
+		return true;
 
 	MapFileSymbol symdef;
 	strcpy_s(symdef.Name, tokens[2]);

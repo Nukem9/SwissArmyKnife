@@ -8,6 +8,7 @@ namespace Settings
 	extern bool IncludeShortJumps;
 	extern bool IncludeMemRefences;
 	extern bool IncludeRelAddresses;
+	extern bool UseSegments;
 	extern SIGNATURE_TYPE LastType;
 
 	void InitIni();
