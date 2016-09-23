@@ -4,3 +4,4 @@ Release/
 Debug/
 *.*db
 *.vcxproj.user
+*.aps
