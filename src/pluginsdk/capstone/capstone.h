@@ -2,14 +2,14 @@
 #define CAPSTONE_ENGINE_H
 
 /* Capstone Disassembly Engine */
-/* By Nguyen Anh Quynh <aquynh@gmail.com>, 2013-2014 */
+/* By Nguyen Anh Quynh <aquynh@gmail.com>, 2013-2015 */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stdint.h>
 #include <stdarg.h>
+
 #if defined(CAPSTONE_HAS_OSXKERNEL)
 #include <libkern/libkern.h>
 #else
@@ -22,12 +22,14 @@ extern "C" {
 #ifdef _MSC_VER
 #pragma warning(disable:4201)
 #pragma warning(disable:4100)
+#define CAPSTONE_API __cdecl
 #ifdef CAPSTONE_SHARED
 #define CAPSTONE_EXPORT __declspec(dllexport)
 #else    // defined(CAPSTONE_STATIC)
 #define CAPSTONE_EXPORT
 #endif
 #else
+#define CAPSTONE_API
 #ifdef __GNUC__
 #define CAPSTONE_EXPORT __attribute__((visibility("default")))
 #else
@@ -45,12 +47,20 @@ extern "C" {
 #endif
 
 // Capstone API version
-#define CS_API_MAJOR 3
+#define CS_API_MAJOR 4
 #define CS_API_MINOR 0
+
+// Version for bleeding edge code of the Github's "next" branch.
+// Use this if you want the absolutely latest developement code.
+// This version number will be bumped up whenever we have a new major change.
+#define CS_NEXT_VERSION 3
 
 // Macro to create combined version which can be compared to
 // result of cs_version() API.
 #define CS_MAKE_VERSION(major, minor) ((major << 8) + minor)
+
+// Maximum size of an instruction mnemonic string.
+#define CS_MNEMONIC_SIZE 32
 
 // Handle using with all API
 typedef size_t csh;
@@ -66,6 +76,7 @@ typedef enum cs_arch
     CS_ARCH_SPARC,      // Sparc architecture
     CS_ARCH_SYSZ,       // SystemZ architecture
     CS_ARCH_XCORE,      // XCore architecture
+    CS_ARCH_M68K,       // 68K architecture
     CS_ARCH_MAX,
     CS_ARCH_ALL = 0xFFFF, // All architectures - for cs_support()
 } cs_arch;
@@ -94,18 +105,24 @@ typedef enum cs_mode
     CS_MODE_MICRO = 1 << 4, // MicroMips mode (MIPS)
     CS_MODE_MIPS3 = 1 << 5, // Mips III ISA
     CS_MODE_MIPS32R6 = 1 << 6, // Mips32r6 ISA
-    CS_MODE_MIPSGP64 = 1 << 7, // General Purpose Registers are 64-bit wide (MIPS)
     CS_MODE_V9 = 1 << 4, // SparcV9 mode (Sparc)
+    CS_MODE_QPX = 1 << 4, // Quad Processing eXtensions mode (PPC)
+    CS_MODE_M68K_000 = 1 << 1, // M68K 68000 mode
+    CS_MODE_M68K_010 = 1 << 2, // M68K 68010 mode
+    CS_MODE_M68K_020 = 1 << 3, // M68K 68020 mode
+    CS_MODE_M68K_030 = 1 << 4, // M68K 68030 mode
+    CS_MODE_M68K_040 = 1 << 5, // M68K 68040 mode
+    CS_MODE_M68K_060 = 1 << 6, // M68K 68060 mode
     CS_MODE_BIG_ENDIAN = 1 << 31,   // big-endian mode
     CS_MODE_MIPS32 = CS_MODE_32,    // Mips32 ISA (Mips)
     CS_MODE_MIPS64 = CS_MODE_64,    // Mips64 ISA (Mips)
 } cs_mode;
 
-typedef void* (*cs_malloc_t)(size_t size);
-typedef void* (*cs_calloc_t)(size_t nmemb, size_t size);
-typedef void* (*cs_realloc_t)(void* ptr, size_t size);
-typedef void (*cs_free_t)(void* ptr);
-typedef int (*cs_vsnprintf_t)(char* str, size_t size, const char* format, va_list ap);
+typedef void* (CAPSTONE_API* cs_malloc_t)(size_t size);
+typedef void* (CAPSTONE_API* cs_calloc_t)(size_t nmemb, size_t size);
+typedef void* (CAPSTONE_API* cs_realloc_t)(void* ptr, size_t size);
+typedef void (CAPSTONE_API* cs_free_t)(void* ptr);
+typedef int (CAPSTONE_API* cs_vsnprintf_t)(char* str, size_t size, const char* format, va_list ap);
 
 
 // User-defined dynamic memory related functions: malloc/calloc/realloc/free/vsnprintf()
@@ -119,26 +136,42 @@ typedef struct cs_opt_mem
     cs_vsnprintf_t vsnprintf;
 } cs_opt_mem;
 
+// Customize mnemonic for instructions with alternative name.
+// To reset existing customized instruction to its default mnemonic,
+// call cs_option(CS_OPT_MNEMONIC) again with the same @id and NULL value
+// for @mnemonic.
+typedef struct cs_opt_mnem
+{
+    // ID of instruction to be customized.
+    unsigned int id;
+    // Customized instruction mnemonic.
+    char* mnemonic;
+} cs_opt_mnem;
+
 // Runtime option for the disassembled engine
 typedef enum cs_opt_type
 {
-    CS_OPT_SYNTAX = 1,  // Assembly output syntax
+    CS_OPT_INVALID = 0, // No option specified
+    CS_OPT_SYNTAX,  // Assembly output syntax
     CS_OPT_DETAIL,  // Break down instruction structure into details
     CS_OPT_MODE,    // Change engine's mode at run-time
     CS_OPT_MEM, // User-defined dynamic memory related functions
     CS_OPT_SKIPDATA, // Skip data when disassembling. Then engine is in SKIPDATA mode.
     CS_OPT_SKIPDATA_SETUP, // Setup user-defined function for SKIPDATA option
+    CS_OPT_MNEMONIC, // Customize instruction mnemonic
+    CS_OPT_UNSIGNED, // print immediate operands in unsigned form
 } cs_opt_type;
 
 // Runtime option value (associated with option type above)
 typedef enum cs_opt_value
 {
-    CS_OPT_OFF = 0,  // Turn OFF an option - default option of CS_OPT_DETAIL, CS_OPT_SKIPDATA.
+    CS_OPT_OFF = 0,  // Turn OFF an option - default for CS_OPT_DETAIL, CS_OPT_SKIPDATA, CS_OPT_UNSIGNED.
     CS_OPT_ON = 3, // Turn ON an option (CS_OPT_DETAIL, CS_OPT_SKIPDATA).
     CS_OPT_SYNTAX_DEFAULT = 0, // Default asm syntax (CS_OPT_SYNTAX).
     CS_OPT_SYNTAX_INTEL, // X86 Intel asm syntax - default on X86 (CS_OPT_SYNTAX).
     CS_OPT_SYNTAX_ATT,   // X86 ATT asm syntax (CS_OPT_SYNTAX).
     CS_OPT_SYNTAX_NOREGNAME, // Prints register name with only number (CS_OPT_SYNTAX)
+    CS_OPT_SYNTAX_MASM, // X86 Intel Masm syntax (CS_OPT_SYNTAX).
 } cs_opt_value;
 
 //> Common instruction operand types - to be consistent across all architectures.
@@ -151,6 +184,15 @@ typedef enum cs_op_type
     CS_OP_FP,           // Floating-Point operand.
 } cs_op_type;
 
+//> Common instruction operand access types - to be consistent across all architectures.
+//> It is possible to combine access types, for example: CS_AC_READ | CS_AC_WRITE
+typedef enum cs_ac_type
+{
+    CS_AC_INVALID = 0,        // Uninitialized/invalid access type.
+    CS_AC_READ    = 1 << 0,   // Operand read from memory or register.
+    CS_AC_WRITE   = 1 << 1,   // Operand write to memory or register.
+} cs_ac_type;
+
 //> Common instruction groups - to be consistent across all architectures.
 typedef enum cs_group_type
 {
@@ -160,6 +202,7 @@ typedef enum cs_group_type
     CS_GRP_RET,     // all return instructions
     CS_GRP_INT,     // all interrupt instructions (int+syscall)
     CS_GRP_IRET,    // all interrupt return instructions
+    CS_GRP_PRIVILEGE,    // all privileged instructions
 } cs_group_type;
 
 /*
@@ -176,7 +219,7 @@ typedef enum cs_group_type
 
  @return: return number of bytes to skip, or 0 to immediately stop disassembling.
 */
-typedef size_t (*cs_skipdata_cb_t)(const uint8_t* code, size_t code_size, size_t offset, void* user_data);
+typedef size_t (CAPSTONE_API* cs_skipdata_cb_t)(const uint8_t* code, size_t code_size, size_t offset, void* user_data);
 
 // User-customized setup for SKIPDATA option
 typedef struct cs_opt_skipdata
@@ -210,6 +253,7 @@ typedef struct cs_opt_skipdata
 
 #include "arm.h"
 #include "arm64.h"
+#include "m68k.h"
 #include "mips.h"
 #include "ppc.h"
 #include "sparc.h"
@@ -220,10 +264,10 @@ typedef struct cs_opt_skipdata
 // NOTE: All information in cs_detail is only available when CS_OPT_DETAIL = CS_OPT_ON
 typedef struct cs_detail
 {
-    uint8_t regs_read[12]; // list of implicit registers read by this insn
+    uint16_t regs_read[12]; // list of implicit registers read by this insn
     uint8_t regs_read_count; // number of implicit registers read by this insn
 
-    uint8_t regs_write[20]; // list of implicit registers modified by this insn
+    uint16_t regs_write[20]; // list of implicit registers modified by this insn
     uint8_t regs_write_count; // number of implicit registers modified by this insn
 
     uint8_t groups[8]; // list of group this instruction belong to
@@ -235,6 +279,7 @@ typedef struct cs_detail
         cs_x86 x86; // X86 architecture, including 16-bit, 32-bit & 64-bit mode
         cs_arm64 arm64; // ARM64 architecture (aka AArch64)
         cs_arm arm;     // ARM architecture (including Thumb/Thumb2)
+        cs_m68k m68k;   // M68K architecture
         cs_mips mips;   // MIPS architecture
         cs_ppc ppc; // PowerPC architecture
         cs_sparc sparc; // Sparc architecture
@@ -261,13 +306,14 @@ typedef struct cs_insn
     // Size of this instruction
     // This information is available even when CS_OPT_DETAIL = CS_OPT_OFF
     uint16_t size;
+
     // Machine bytes of this instruction, with number of bytes indicated by @size above
     // This information is available even when CS_OPT_DETAIL = CS_OPT_OFF
     uint8_t bytes[16];
 
     // Ascii text of instruction mnemonic
     // This information is available even when CS_OPT_DETAIL = CS_OPT_OFF
-    char mnemonic[32];
+    char mnemonic[CS_MNEMONIC_SIZE];
 
     // Ascii text of instruction operands
     // This information is available even when CS_OPT_DETAIL = CS_OPT_OFF
@@ -308,6 +354,7 @@ typedef enum cs_err
     CS_ERR_SKIPDATA, // Access irrelevant data for "data" instruction in SKIPDATA mode
     CS_ERR_X86_ATT,  // X86 AT&T syntax is unsupported (opt-out at compile time)
     CS_ERR_X86_INTEL, // X86 Intel syntax is unsupported (opt-out at compile time)
+    CS_ERR_X86_MASM, // X86 Intel syntax is unsupported (opt-out at compile time)
 } cs_err;
 
 /*
@@ -328,7 +375,7 @@ typedef enum cs_err
  set both @major & @minor arguments to NULL.
 */
 CAPSTONE_EXPORT
-unsigned int cs_version(int* major, int* minor);
+unsigned int CAPSTONE_API cs_version(int* major, int* minor);
 
 
 /*
@@ -345,7 +392,7 @@ unsigned int cs_version(int* major, int* minor);
  @return True if this library supports the given arch, or in 'diet' mode.
 */
 CAPSTONE_EXPORT
-bool cs_support(int query);
+bool CAPSTONE_API cs_support(int query);
 
 /*
  Initialize CS handle: this must be done before any usage of CS.
@@ -358,7 +405,7 @@ bool cs_support(int query);
  for detailed error).
 */
 CAPSTONE_EXPORT
-cs_err cs_open(cs_arch arch, cs_mode mode, csh* handle);
+cs_err CAPSTONE_API cs_open(cs_arch arch, cs_mode mode, csh* handle);
 
 /*
  Close CS handle: MUST do to release the handle when it is not used anymore.
@@ -375,7 +422,7 @@ cs_err cs_open(cs_arch arch, cs_mode mode, csh* handle);
  for detailed error).
 */
 CAPSTONE_EXPORT
-cs_err cs_close(csh* handle);
+cs_err CAPSTONE_API cs_close(csh* handle);
 
 /*
  Set option for disassembling engine at runtime
@@ -392,7 +439,7 @@ cs_err cs_close(csh* handle);
  even before cs_open()
 */
 CAPSTONE_EXPORT
-cs_err cs_option(csh handle, cs_opt_type type, size_t value);
+cs_err CAPSTONE_API cs_option(csh handle, cs_opt_type type, size_t value);
 
 /*
  Report the last error number when some API function fail.
@@ -403,7 +450,7 @@ cs_err cs_option(csh handle, cs_opt_type type, size_t value);
  @return: error code of cs_err enum type (CS_ERR_*, see above)
 */
 CAPSTONE_EXPORT
-cs_err cs_errno(csh handle);
+cs_err CAPSTONE_API cs_errno(csh handle);
 
 
 /*
@@ -415,7 +462,7 @@ cs_err cs_errno(csh handle);
     passed in the argument @code
 */
 CAPSTONE_EXPORT
-const char* cs_strerror(cs_err code);
+const char* CAPSTONE_API cs_strerror(cs_err code);
 
 /*
  Disassemble binary code, given the code buffer, size, address and number
@@ -451,11 +498,11 @@ const char* cs_strerror(cs_err code);
  On failure, call cs_errno() for error code.
 */
 CAPSTONE_EXPORT
-size_t cs_disasm(csh handle,
-                 const uint8_t* code, size_t code_size,
-                 uint64_t address,
-                 size_t count,
-                 cs_insn** insn);
+size_t CAPSTONE_API cs_disasm(csh handle,
+                              const uint8_t* code, size_t code_size,
+                              uint64_t address,
+                              size_t count,
+                              cs_insn** insn);
 
 /*
   Deprecated function - to be retired in the next version!
@@ -463,11 +510,11 @@ size_t cs_disasm(csh handle,
 */
 CAPSTONE_EXPORT
 CAPSTONE_DEPRECATED
-size_t cs_disasm_ex(csh handle,
-                    const uint8_t* code, size_t code_size,
-                    uint64_t address,
-                    size_t count,
-                    cs_insn** insn);
+size_t CAPSTONE_API cs_disasm_ex(csh handle,
+                                 const uint8_t* code, size_t code_size,
+                                 uint64_t address,
+                                 size_t count,
+                                 cs_insn** insn);
 
 /*
  Free memory allocated by cs_malloc() or cs_disasm() (argument @insn)
@@ -477,7 +524,7 @@ size_t cs_disasm_ex(csh handle,
      to free memory allocated by cs_malloc().
 */
 CAPSTONE_EXPORT
-void cs_free(cs_insn* insn, size_t count);
+void CAPSTONE_API cs_free(cs_insn* insn, size_t count);
 
 
 /*
@@ -489,7 +536,7 @@ void cs_free(cs_insn* insn, size_t count);
  this instruction with cs_free(insn, 1)
 */
 CAPSTONE_EXPORT
-cs_insn* cs_malloc(csh handle);
+cs_insn* CAPSTONE_API cs_malloc(csh handle);
 
 /*
  Fast API to disassemble binary code, given the code buffer, size, address
@@ -527,9 +574,9 @@ cs_insn* cs_malloc(csh handle);
  On failure, call cs_errno() for error code.
 */
 CAPSTONE_EXPORT
-bool cs_disasm_iter(csh handle,
-                    const uint8_t** code, size_t* size,
-                    uint64_t* address, cs_insn* insn);
+bool CAPSTONE_API cs_disasm_iter(csh handle,
+                                 const uint8_t** code, size_t* size,
+                                 uint64_t* address, cs_insn* insn);
 
 /*
  Return friendly name of register in a string.
@@ -545,7 +592,7 @@ bool cs_disasm_iter(csh handle,
  @return: string name of the register, or NULL if @reg_id is invalid.
 */
 CAPSTONE_EXPORT
-const char* cs_reg_name(csh handle, unsigned int reg_id);
+const char* CAPSTONE_API cs_reg_name(csh handle, unsigned int reg_id);
 
 /*
  Return friendly name of an instruction in a string.
@@ -560,7 +607,7 @@ const char* cs_reg_name(csh handle, unsigned int reg_id);
  @return: string name of the instruction, or NULL if @insn_id is invalid.
 */
 CAPSTONE_EXPORT
-const char* cs_insn_name(csh handle, unsigned int insn_id);
+const char* CAPSTONE_API cs_insn_name(csh handle, unsigned int insn_id);
 
 /*
  Return friendly name of a group id (that an instruction can belong to)
@@ -575,7 +622,7 @@ const char* cs_insn_name(csh handle, unsigned int insn_id);
  @return: string name of the group, or NULL if @group_id is invalid.
 */
 CAPSTONE_EXPORT
-const char* cs_group_name(csh handle, unsigned int group_id);
+const char* CAPSTONE_API cs_group_name(csh handle, unsigned int group_id);
 
 /*
  Check if a disassembled instruction belong to a particular group.
@@ -594,7 +641,7 @@ const char* cs_group_name(csh handle, unsigned int group_id);
  @return: true if this instruction indeed belongs to aboved group, or false otherwise.
 */
 CAPSTONE_EXPORT
-bool cs_insn_group(csh handle, const cs_insn* insn, unsigned int group_id);
+bool CAPSTONE_API cs_insn_group(csh handle, const cs_insn* insn, unsigned int group_id);
 
 /*
  Check if a disassembled instruction IMPLICITLY used a particular register.
@@ -612,7 +659,7 @@ bool cs_insn_group(csh handle, const cs_insn* insn, unsigned int group_id);
  @return: true if this instruction indeed implicitly used aboved register, or false otherwise.
 */
 CAPSTONE_EXPORT
-bool cs_reg_read(csh handle, const cs_insn* insn, unsigned int reg_id);
+bool CAPSTONE_API cs_reg_read(csh handle, const cs_insn* insn, unsigned int reg_id);
 
 /*
  Check if a disassembled instruction IMPLICITLY modified a particular register.
@@ -630,7 +677,7 @@ bool cs_reg_read(csh handle, const cs_insn* insn, unsigned int reg_id);
  @return: true if this instruction indeed implicitly modified aboved register, or false otherwise.
 */
 CAPSTONE_EXPORT
-bool cs_reg_write(csh handle, const cs_insn* insn, unsigned int reg_id);
+bool CAPSTONE_API cs_reg_write(csh handle, const cs_insn* insn, unsigned int reg_id);
 
 /*
  Count the number of operands of a given type.
@@ -646,7 +693,7 @@ bool cs_reg_write(csh handle, const cs_insn* insn, unsigned int reg_id);
  or -1 on failure.
 */
 CAPSTONE_EXPORT
-int cs_op_count(csh handle, const cs_insn* insn, unsigned int op_type);
+int CAPSTONE_API cs_op_count(csh handle, const cs_insn* insn, unsigned int op_type);
 
 /*
  Retrieve the position of operand of given type in <arch>.operands[] array.
@@ -665,8 +712,33 @@ int cs_op_count(csh handle, const cs_insn* insn, unsigned int op_type);
  in instruction @insn, or -1 on failure.
 */
 CAPSTONE_EXPORT
-int cs_op_index(csh handle, const cs_insn* insn, unsigned int op_type,
-                unsigned int position);
+int CAPSTONE_API cs_op_index(csh handle, const cs_insn* insn, unsigned int op_type,
+                             unsigned int position);
+
+// Type of array to keep the list of registers
+typedef uint16_t cs_regs[64];
+
+/*
+ Retrieve all the registers accessed by an instruction, either explicitly or
+ implicitly.
+
+ WARN: when in 'diet' mode, this API is irrelevant because engine does not
+ store registers.
+
+ @handle: handle returned by cs_open()
+ @insn: disassembled instruction structure returned from cs_disasm() or cs_disasm_iter()
+ @regs_read: on return, this array contains all registers read by instruction.
+ @regs_read_count: number of registers kept inside @regs_read array.
+ @regs_write: on return, this array contains all registers written by instruction.
+ @regs_write_count: number of registers kept inside @regs_write array.
+
+ @return CS_ERR_OK on success, or other value on failure (refer to cs_err enum
+ for detailed error).
+*/
+CAPSTONE_EXPORT
+cs_err CAPSTONE_API cs_regs_access(csh handle, const cs_insn* insn,
+                                   cs_regs regs_read, uint8_t* regs_read_count,
+                                   cs_regs regs_write, uint8_t* regs_write_count);
 
 #ifdef __cplusplus
 }

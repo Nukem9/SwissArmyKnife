@@ -117,7 +117,7 @@ bool MapFile::EnumerateLines(char *Start, int Type)
 			*eol = '\0';
 
 		// If the delimiter is not present, the line is not valid
-		if (!strchr(ptr, ':'))
+		if (!strchr(ptr, ':') && !strchr(ptr, ';'))
 			break;
 
 		if (Type == 'SEGM' && !LoadSegment(ptr))
@@ -144,11 +144,12 @@ bool MapFile::LoadSegments()
 	 0001:00000000 000000030H .init                  CODE
 	*/
 	char *startPos = strstr(m_FileData, "Start");
+	char *addressPos = strstr(m_FileData, "Address");
 
-	if (!startPos)
+	if (!startPos || startPos > addressPos)
 	{
-		_plugin_logprintf("Couldn't find starting position for segments\n");
-		return false;
+		_plugin_logprintf("Couldn't find starting position for segments, skipping\n");
+		return true;
 	}
 
 	// Insert a fake segment for the PE header (Id #0)
@@ -302,6 +303,9 @@ bool MapFile::LoadSymbol(char *Line)
 		if (!bufPtr)
 			break;
 	}
+
+	if (!strcmp(tokens[1], "function") || !strcmp(tokens[1], "procedure"))
+		return true;
 
 	MapFileSymbol symdef;
 	strcpy_s(symdef.Name, tokens[2]);

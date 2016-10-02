@@ -23,6 +23,7 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPAR
 		SendMessage(GetDlgItem(hwndDlg, IDC_SETTINGS_SHORTJMP), BM_SETCHECK, CHECK(Settings::IncludeShortJumps), 0);
 		SendMessage(GetDlgItem(hwndDlg, IDC_SETTINGS_MEMREFS), BM_SETCHECK, CHECK(Settings::IncludeMemRefences), 0);
 		SendMessage(GetDlgItem(hwndDlg, IDC_SETTINGS_RELADDR), BM_SETCHECK, CHECK(Settings::IncludeRelAddresses), 0);
+		SendMessage(GetDlgItem(hwndDlg, IDC_SETTINGS_USESEGMENTS), BM_SETCHECK, CHECK(Settings::UseSegments), 0);
 	}
 	break;
 
@@ -45,6 +46,7 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPAR
 			Settings::IncludeShortJumps		= SendMessage(GetDlgItem(hwndDlg, IDC_SETTINGS_SHORTJMP), BM_GETCHECK, 0, 0) == BST_CHECKED;
 			Settings::IncludeMemRefences	= SendMessage(GetDlgItem(hwndDlg, IDC_SETTINGS_MEMREFS), BM_GETCHECK, 0, 0) == BST_CHECKED;
 			Settings::IncludeRelAddresses	= SendMessage(GetDlgItem(hwndDlg, IDC_SETTINGS_RELADDR), BM_GETCHECK, 0, 0) == BST_CHECKED;
+			Settings::UseSegments           = SendMessage(GetDlgItem(hwndDlg, IDC_SETTINGS_USESEGMENTS), BM_GETCHECK, 0, 0) == BST_CHECKED;
 
 			// Save options
 			Settings::Save();

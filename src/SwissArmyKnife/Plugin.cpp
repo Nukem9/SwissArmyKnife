@@ -131,10 +131,10 @@ DLL_EXPORT void plugsetup(PLUG_SETUPSTRUCT *SetupStruct)
 
 	int signatureMenu = _plugin_menuadd(g_MenuHandle, "Signature");
 	_plugin_menuaddentry(signatureMenu, PLUGIN_MENU_MAKESIG, "&Create");
-	_plugin_menuaddentry(signatureMenu, PLUGIN_MENU_SETTINGS, "&Options");
 	_plugin_menuaddseparator(g_MenuHandle);
 
 	// Misc
+	_plugin_menuaddentry(g_MenuHandle, PLUGIN_MENU_SETTINGS, "&Options");
 	_plugin_menuaddentry(g_MenuHandle, PLUGIN_MENU_ABOUT, "&About");
 }
 

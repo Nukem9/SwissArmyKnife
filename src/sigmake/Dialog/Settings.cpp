@@ -10,6 +10,7 @@ namespace Settings
 	bool IncludeShortJumps;
 	bool IncludeMemRefences;
 	bool IncludeRelAddresses;
+	bool UseSegments;
 	SIGNATURE_TYPE LastType;
 
 	void InitIni()
@@ -32,6 +33,7 @@ namespace Settings
 			TrimSignatures		= true;
 			IncludeShortJumps	= true;
 			IncludeRelAddresses = true;
+			UseSegments         = false;
 
 			Save();
 		}
@@ -50,6 +52,7 @@ namespace Settings
 		IncludeShortJumps	= GetProfileBool("IncludeShortJumps");
 		IncludeMemRefences	= GetProfileBool("IncludeMemRefences");
 		IncludeRelAddresses	= GetProfileBool("IncludeRelAddresses");
+		UseSegments         = GetProfileBool("UseSegments");
 		LastType			= (SIGNATURE_TYPE)GetPrivateProfileInt("Options", "LastType", 0, IniPath);
 	}
 
@@ -70,5 +73,6 @@ namespace Settings
 		SetProfileInt("IncludeMemRefences",		IncludeMemRefences);
 		SetProfileInt("IncludeRelAddresses",	IncludeRelAddresses);
 		SetProfileInt("LastType",				LastType);
+		SetProfileInt("UseSegments",            UseSegments);
 	}
 }

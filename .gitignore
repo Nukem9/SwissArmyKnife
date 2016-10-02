@@ -1,43 +1,7 @@
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-*.exp
-*.iobj
-*.ipdb
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-*.dp32
-*.dp64
-
-# Fortran module files
-*.mod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
-# Visual Studio
-*.opensdf
-*.sdf
-
-# Debug directories
-SwissArmyKnife/Debug/*
-SwissArmyKnife/Release/*
-SwissArmyKnife/x64/*
-*.opendb
+.vs/
+bin/
+Release/
+Debug/
+*.*db
+*.vcxproj.user
+*.aps
