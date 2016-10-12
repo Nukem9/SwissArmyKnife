@@ -2,10 +2,6 @@
 Various utilities for extending functionality in [x64dbg](https://github.com/x64dbg/x64dbg).
 <br><br>
 
-### Requirements
-------
-* [Visual C++ Redistributable for Visual Studio 2015](https://www.microsoft.com/en-us/download/details.aspx?id=48145)
-
 <br>
 ### IDA Imports
 ------
