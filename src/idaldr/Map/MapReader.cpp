@@ -193,6 +193,41 @@ char *GrabToken(char *Dest, char *Src)
 	return ((bufEnd) ? (bufEnd + 1) : nullptr);
 }
 
+char *GrabTokenSymbol(char *Dest, char *Src, int TokenIndex)
+{
+	// Skip spaces
+	while (*Src == ' ' || *Src == '\t')
+		Src++;
+
+	char *bufEnd = nullptr;
+	switch (TokenIndex)
+	{
+	case 0:
+		// Case with ':'
+		{
+			bufEnd = strchr(Src, ':');
+		}
+		break;
+	case 1:
+		// Case with ':'
+		{
+			bufEnd = strchr(Src, ' ');
+		}
+		break;
+	default:
+		strcpy(Dest, Src);
+		return nullptr;
+		break;
+	}
+
+	if (bufEnd != nullptr)
+		*bufEnd = '\0';
+
+	strcpy(Dest, Src);
+
+	return ((bufEnd) ? (bufEnd + 1) : nullptr);
+}
+
 bool MapFile::LoadSegment(char *Line)
 {
 	// ID:BASE LENGTH NAME CLASS
@@ -298,7 +333,7 @@ bool MapFile::LoadSymbol(char *Line)
 
 	for (int i = 0; i < ARRAYSIZE(tokens); i++)
 	{
-		bufPtr = GrabToken(tokens[i], bufPtr);
+		bufPtr = GrabTokenSymbol(tokens[i], bufPtr, i);
 
 		if (!bufPtr)
 			break;
