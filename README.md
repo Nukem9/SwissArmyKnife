@@ -1,40 +1,33 @@
 # SwissArmyKnife
 Various utilities for extending functionality in [x64dbg](https://github.com/x64dbg/x64dbg).
-<br><br>
 
-<br>
 ### IDA Imports
 ------
 * Allows loading and exporting of binary patches (*.dif)
 * Allows loading of signature files (*.sig) up to IDA version 6.1
 
-<br>
 ### Linker MAP Symbols
 ------
 * Allows for loading linker map files (*.map) produced by many compilers. Some information is located [here](http://www.codeproject.com/Articles/3472/Finding-crash-information-using-the-MAP-file). At the moment, exporting such files is not possible with the plugin API.
 
-<br>
 ### PEiD
 ------
 * Parses and loads [PEiD](https://www.aldeid.com/wiki/PEiD) signature databases.
 
-<br>
 ### Code Signatures
 ------
 Four different signature styles are supported:
     
-1. Code style<br>
+1. Code style
     `\x33\xC0\x33\xF6\x48\x89\x44\x24\x42\x89\x44\x24\x4A\x66\x89\x44\x24\x4E\x00\x00\x00\x00\x00\x00\x00\x48\x8B\xF9\xC7\x44\x00\x00\x00\x00\x00\x00\x48\x89\x44\x24\x60\x48`
-    <br>
     `xxxxxxxxxxxxxxxxxx???????xxxxx??????xxxxxxxxxxx??????x????xxxxxxxxxxx??????xxxxxxxx`
-2. IDA Style<br>
+2. IDA Style
     `33 C0 33 F6 48 89 44 24 42 89 44 24 4A 66 89 44 24 4E ? ? ? ? ? ? ? 48 8B F9 C7 44 ? ? ? ? ? ? 48 89 44 24 60 48`
-3. PEiD Style<br>
+3. PEiD Style
     `33 C0 33 F6 48 89 44 24 42 89 44 24 4A 66 89 44 24 4E ?? ?? ?? ?? ?? ?? ?? 48 8B F9 C7 44 ?? ?? ?? ?? ?? ?? 48 89 44 24 60 48`
-4. CRC32<br>
-    `0x754329FB`
+
         
-<br>
+        
 ### Cipher Detection
 ------
 ##### Findcrypt v2 with AES-NI
