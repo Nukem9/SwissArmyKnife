@@ -204,20 +204,17 @@ char *GrabTokenSymbol(char *Dest, char *Src, int TokenIndex)
 	{
 	case 0:
 		// Case with ':'
-		{
-			bufEnd = strchr(Src, ':');
-		}
+		bufEnd = strchr(Src, ':');
 		break;
+
 	case 1:
-		// Case with ':'
-		{
-			bufEnd = strchr(Src, ' ');
-		}
+		// Case with ' '
+		bufEnd = strchr(Src, ' ');
 		break;
+
 	default:
 		strcpy(Dest, Src);
 		return nullptr;
-		break;
 	}
 
 	if (bufEnd != nullptr)
