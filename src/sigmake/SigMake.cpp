@@ -5,9 +5,7 @@ const static duint CodeSizeMaximum = 64 * 1024;	// 64 kilobytes
 
 SIG_DESCRIPTOR *GenerateSigFromCode(duint Start, duint End)
 {
-	//
 	// Avoid duplicating code everywhere
-	//
 	bool returnStatus = false;
 
 	PBYTE processMemory		= nullptr;
@@ -26,9 +24,7 @@ SIG_DESCRIPTOR *GenerateSigFromCode(duint Start, duint End)
 		goto __freememory;
 	}
 
-	//
 	// Allocate and read the memory buffer
-	//
 	processMemory = (PBYTE)BridgeAlloc(codeSize);
 
 	if (!DbgMemRead(Start, processMemory, codeSize))
@@ -37,20 +33,13 @@ SIG_DESCRIPTOR *GenerateSigFromCode(duint Start, duint End)
 		goto __freememory;
 	}
 
-	//
 	// Allocate the descriptor buffer (Count = # of bytes)
-	//
 	desc = AllocDescriptor(codeSize);
 
-	//
 	// Allocate the disassembly buffer
-	//
 	uint32_t instructionCount	= 0;
 	instructions				= (_DInst *)BridgeAlloc(codeSize * sizeof(_DInst));
 
-	//
-	// Decode the assembly
-	//
 	_CodeInfo info;
 	info.codeOffset = Start;
 	info.code		= processMemory;
@@ -72,9 +61,7 @@ SIG_DESCRIPTOR *GenerateSigFromCode(duint Start, duint End)
 		goto __freememory;
 	}
 
-	//
 	// Loop through each instruction
-	//
 	uint32_t i = 0;// Instruction index counter
 	uint32_t d = 0;// Data index counter
 
@@ -105,15 +92,11 @@ SIG_DESCRIPTOR *GenerateSigFromCode(duint Start, duint End)
 		}
 	}
 
-	//
 	// Is the setting enabled to trim signatures?
-	//
 	if (Settings::TrimSignatures)
 		TrimDescriptor(desc);
 
-	//
 	// Is the setting enabled to shorten signatures?
-	//
 	if (Settings::ShortestSignatures)
 		ShortenDescriptor(desc);
 
@@ -126,9 +109,7 @@ __freememory:
 	if (instructions)
 		BridgeFree(instructions);
 
-	//
 	// Was this function successful?
-	//
 	if (!returnStatus)
 	{
 		if (desc)
@@ -142,18 +123,13 @@ __freememory:
 
 void PatternScan(SIG_DESCRIPTOR *Descriptor, std::vector<duint>& Results)
 {
-	//
-	// Verify
-	//
 	if (Descriptor->Count <= 0)
 	{
 		_plugin_logprintf("Trying to scan with an invalid signature\n");
 		return;
 	}
 
-	//
 	// Get a copy of the current module in disassembly
-	//
 	duint moduleBase	= DbgGetCurrentModule();
 	duint moduleSize	= DbgFunctions()->ModSizeFromAddr(moduleBase);
 	PBYTE processMemory = (PBYTE)BridgeAlloc(moduleSize);
@@ -164,9 +140,6 @@ void PatternScan(SIG_DESCRIPTOR *Descriptor, std::vector<duint>& Results)
 		return;
 	}
 
-	//
-	// Compare function
-	//
 	auto DataCompare = [](PBYTE Data, SIG_DESCRIPTOR_ENTRY *Entries, ULONG Count)
 	{
 		ULONG i = 0;
@@ -180,9 +153,7 @@ void PatternScan(SIG_DESCRIPTOR *Descriptor, std::vector<duint>& Results)
 		return i == Count;
 	};
 
-	//
 	// Scanner loop
-	//
 	for (duint i = 0; i < moduleSize; i++)
 	{
 		PBYTE dataAddr = processMemory + i;
@@ -200,22 +171,16 @@ bool MatchOperands(_DInst *Instruction, _Operand *Operands, int PrefixSize)
 	// Settings are also taken into account.
 	//
 
-	//
 	// Determine if short branches are allowed
-	//
 	if (META_GET_FC(Instruction->meta) == FC_UNC_BRANCH ||
 		META_GET_FC(Instruction->meta) == FC_CND_BRANCH)
 	{
-		//
 		// Unused prefixes might cause a larger instruction size
-		//
 		if (Settings::IncludeShortJumps && ((Instruction->size - PrefixSize) < 5))
 			return true;
 	}
 
-	//
 	// Loop through the operands
-	//
 	for (int i = 0; i < ARRAYSIZE(Instruction->ops); i++)
 	{
 		switch (Operands[i].type)
@@ -257,15 +222,11 @@ bool MatchOperands(_DInst *Instruction, _Operand *Operands, int PrefixSize)
 
 int MatchInstruction(_DInst *Instruction, PBYTE Data)
 {
-	//
 	// Are wild cards forced to be off?
-	//
 	if (Settings::DisableWildcards)
 		return Instruction->size;
 
-	//
 	// Create a temporary struct in order to decode data
-	//
 	_CodeInfo info;
 	_PrefixState ps;
 

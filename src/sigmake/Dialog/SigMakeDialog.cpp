@@ -4,25 +4,18 @@ HWND g_SigMakeDialog;
 
 void MakeSigDialogInit(HWND hwndDlg)
 {
-	//
-	// Get the debugger window's selection
-	//
+	// Get the debugger window's selection and generate the signature
 	SELECTIONDATA selection;
 
 	if (!GuiSelectionGet(GUI_DISASSEMBLY, &selection))
 		return;
 
-	//
-	// Generate the signature
-	//
 	SIG_DESCRIPTOR *desc = GenerateSigFromCode(selection.start, selection.end);
 
 	if (!desc)
 		return;
 
-	//
 	// SIG_DESCRIPTOR -> String
-	//
 	char *data = nullptr;
 	char *mask = nullptr;
 
@@ -36,9 +29,7 @@ void MakeSigDialogInit(HWND hwndDlg)
 
 	BridgeFree(desc);
 
-	//
 	// Set the edit box text and clean up
-	//
 	if (data)
 	{
 		SetWindowText(GetDlgItem(hwndDlg, IDC_SIGMAKE_EDIT1), data);
@@ -54,9 +45,7 @@ void MakeSigDialogInit(HWND hwndDlg)
 
 void MakeSigDialogConvert(HWND hwndDlg, SIGNATURE_TYPE To, SIGNATURE_TYPE From)
 {
-	//
 	// Don't convert if destination and source types are the same
-	//
 	if (To == From)
 		return;
 
@@ -69,9 +58,7 @@ void MakeSigDialogConvert(HWND hwndDlg, SIGNATURE_TYPE To, SIGNATURE_TYPE From)
 	GetWindowText(GetDlgItem(hwndDlg, IDC_SIGMAKE_EDIT1), data, dataLen);
 	GetWindowText(GetDlgItem(hwndDlg, IDC_SIGMAKE_EDIT2), mask, maskLen);
 
-	//
 	// Convert string(s) to the incoming raw code descriptor
-	//
 	SIG_DESCRIPTOR *inDesc = nullptr;
 
 	switch (From)
@@ -82,18 +69,13 @@ void MakeSigDialogConvert(HWND hwndDlg, SIGNATURE_TYPE To, SIGNATURE_TYPE From)
 	case SIG_CRC:	inDesc = DescriptorFromCRC(data);			break;
 	}
 
-	//
-	// Free temporary allocations
-	//
 	BridgeFree(data);
 	BridgeFree(mask);
 
 	data = nullptr;
 	mask = nullptr;
 
-	//
 	// Convert raw code to destination strings
-	//
 	switch (To)
 	{
 	case SIG_CODE:	DescriptorToCode(inDesc, &data, &mask);	break;
@@ -102,9 +84,7 @@ void MakeSigDialogConvert(HWND hwndDlg, SIGNATURE_TYPE To, SIGNATURE_TYPE From)
 	case SIG_CRC:	DescriptorToCRC(inDesc, &data, &mask);	break;
 	}
 
-	//
 	// Update dialog
-	//
 	SetWindowText(GetDlgItem(hwndDlg, IDC_SIGMAKE_EDIT1), data ? data : "");
 	SetWindowText(GetDlgItem(hwndDlg, IDC_SIGMAKE_EDIT2), mask ? mask : "");
 
@@ -128,9 +108,7 @@ void MakeSigDialogExecute(HWND hwndDlg)
 	GetWindowText(GetDlgItem(hwndDlg, IDC_SIGMAKE_EDIT1), data, dataLen);
 	GetWindowText(GetDlgItem(hwndDlg, IDC_SIGMAKE_EDIT2), mask, maskLen);
 
-	//
 	// Convert the string to a code descriptor
-	//
 	SIG_DESCRIPTOR *desc = nullptr;
 
 	switch (Settings::LastType)
@@ -141,15 +119,10 @@ void MakeSigDialogExecute(HWND hwndDlg)
 	case SIG_CRC:	desc = DescriptorFromCRC(data);			break;
 	}
 
-	//
-	// Scan
-	//
+	// Scan & log it to the GUI
 	std::vector<duint> results;
 	PatternScan(desc, results);
 
-	//
-	// Log it in the GUI
-	//
 	GuiReferenceDeleteAllColumns();
 	GuiReferenceAddColumn(20, "Address");
 	GuiReferenceAddColumn(100, "Disassembly");
@@ -173,9 +146,6 @@ void MakeSigDialogExecute(HWND hwndDlg)
 	GuiReferenceSetProgress(100);
 	GuiUpdateAllViews();
 
-	//
-	// Cleanup
-	//
 	BridgeFree(data);
 	BridgeFree(mask);
 	BridgeFree(desc);
@@ -187,14 +157,10 @@ INT_PTR CALLBACK MakeSigDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 	{
 	case WM_INITDIALOG:
 	{
-		//
 		// Check if the user has any code selected
-		//
 		MakeSigDialogInit(hwndDlg);
 
-		//
 		// TODO: CRC disabled until I can find a good piece of code for it
-		//
 		EnableWindow(GetDlgItem(hwndDlg, IDC_SIGMAKE_CRC), FALSE);
 
 		// Update the initial signature type selection button
@@ -299,18 +265,12 @@ INT_PTR CALLBACK MakeSigDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 
 void OpenSigMakeDialog()
 {
-	//
-	// Ensure a process is being debugged first
-	//
 	if (!DbgIsDebugging())
 	{
 		_plugin_logprintf("No process is being debugged!\n");
 		return;
 	}
 
-	//
-	// Open the dialog
-	//
 	g_SigMakeDialog = CreateDialog(g_LocalDllHandle, MAKEINTRESOURCE(IDD_MAKESIG), GuiGetWindowHandle(), MakeSigDialogProc);
 
 	if (!g_SigMakeDialog)

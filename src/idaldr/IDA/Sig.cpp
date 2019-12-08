@@ -61,25 +61,18 @@ bool IDASig::Load(const char *Path)
 		return false;
 	}
 
-	//
 	// Log and fix up version if needed
-	//
 	SignatureVersion = Header.Version;
 	
 	FixupVersion();
 
-	//
-	// Verify
-	//
 	if (Header.Version != IDASIG_VERSION_NEWEST)
 	{
 		_plugin_logprintf("Unsupported signature version %d\n", Header.Version);
 		return false;
 	}
 
-	//
 	// Read the signature name (stored directly after the header)
-	//
 	memcpy(SignatureName, m_FileData, Header.SigNameLength);
 	SignatureName[Header.SigNameLength] = '\0';
 

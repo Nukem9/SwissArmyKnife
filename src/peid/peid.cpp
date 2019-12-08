@@ -11,9 +11,7 @@ bool ApplyPEiDSymbols(char *Path, duint ModuleBase)
 	if (!dbFile)
 		return false;
 
-	//
 	// Get a copy of the current module in disassembly
-	//
 	duint moduleBase = ModuleBase;
 	duint moduleSize = DbgFunctions()->ModSizeFromAddr(moduleBase);
 	PBYTE processMemory = (PBYTE)BridgeAlloc(moduleSize);
@@ -21,9 +19,7 @@ bool ApplyPEiDSymbols(char *Path, duint ModuleBase)
 	if (!DbgMemRead(moduleBase, processMemory, moduleSize))
 		return false;
 
-	//
 	// Buffers to store signature entries
-	//
 	char buf[4096];
 	char name[4096];
 	char pattern[4096];
@@ -32,9 +28,7 @@ bool ApplyPEiDSymbols(char *Path, duint ModuleBase)
 	memset(name, 0, sizeof(name));
 	memset(pattern, 0, sizeof(pattern));
 
-	//
 	// Read the file line-by-line
-	//
 	int totalCount = 0;
 
 	while (fgets(buf, ARRAYSIZE(buf), dbFile) != nullptr)
@@ -89,14 +83,9 @@ bool ApplyPEiDSymbols(char *Path, duint ModuleBase)
 		}
 	}
 
-	//
 	// Notify user
-	//
 	_plugin_logprintf("%d signature(s) tested in scan\n", totalCount);
 
-	//
-	// Free local copy of module and file handle
-	//
 	BridgeFree(processMemory);
 	fclose(dbFile);
 	return true;
@@ -104,32 +93,22 @@ bool ApplyPEiDSymbols(char *Path, duint ModuleBase)
 
 duint PEiDPatternScan(const char *Pattern, bool EntryPoint, PBYTE ModuleCopy, duint ModuleBase, duint ModuleSize)
 {
-	//
 	// Create the desciptor as a PEiD type
-	//
 	SIG_DESCRIPTOR *desc = DescriptorFromPEiD(Pattern);
 
-	//
-	// Verify
-	//
 	if (!desc || desc->Count <= 0)
 	{
 		_plugin_logprintf("Trying to scan with an invalid signature\n");
 		return 0;
 	}
 
-	//
 	// Check if only the entry point should be scanned
-	//
 	if (EntryPoint)
 	{
 		//ModuleBase = ep_start;
 		//ModuleSize = ep_size;
 	}
 
-	//
-	// Compare function
-	//
 	auto DataCompare = [](PBYTE Data, SIG_DESCRIPTOR_ENTRY *Entries, ULONG Count)
 	{
 		ULONG i = 0;
@@ -143,9 +122,7 @@ duint PEiDPatternScan(const char *Pattern, bool EntryPoint, PBYTE ModuleCopy, du
 		return i == Count;
 	};
 
-	//
 	// Scanner loop
-	//
 	duint match = 0;
 
 	for (duint i = 0; i < ModuleSize; i++)

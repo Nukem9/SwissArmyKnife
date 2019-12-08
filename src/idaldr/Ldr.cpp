@@ -14,17 +14,12 @@ int MatchNodeData(IDASigNode *Node, BYTE *Input, size_t Length)
 	//
 	for (int i = 0; i < Node->m_DataIndex; i++)
 	{
-		//
 		// Check if the buffer was too short
-		//
 		if (Length <= 0)
 			return false;
 
 		if (Node->Data[i].Type == 0xFF)
 		{
-			//
-			// Comparison
-			//
 			if (*Input != Node->Data[i].Value)
 			{
 				// Invalid
@@ -51,9 +46,7 @@ int MatchNodeData(IDASigNode *Node, BYTE *Input, size_t Length)
 
 bool MatchSignatureLeaf(IDASigLeaf *Leaf, BYTE *Input, size_t Length)
 {
-	//
 	// Leaves depend on the CRC16
-	//
 	if (Leaf->Crc16 == 0)
 		return true;
 
@@ -75,9 +68,7 @@ bool MatchSignatureSymbol(IDASigNode *Base, SignatureLookup *Info)
 {
 	if (Base->Nodes.size() > 0)
 	{
-		//
 		// Check each node
-		//
 		for (auto& node : Base->Nodes)
 		{
 			// Does this node match?
@@ -95,9 +86,7 @@ bool MatchSignatureSymbol(IDASigNode *Base, SignatureLookup *Info)
 	}
 	else if (Base->Leaves.size() > 0)
 	{
-		//
 		// Check each leaf
-		//
 		for (auto itr = Base->Leaves.begin(); itr != Base->Leaves.end(); itr++)
 		{
 			IDASigLeaf& leaf = *itr;
@@ -107,28 +96,18 @@ bool MatchSignatureSymbol(IDASigNode *Base, SignatureLookup *Info)
 			{
 				Info->Length += leaf.CrcOffset;
 
-				//
 				// Check the CRC16 if there was one
-				//
 				if (leaf.Crc16 != 0)
 				{
 					WORD calc = crc16(Info->InputBuffer, leaf.CrcOffset);
 
-					//
-					// Was the CRC a match?
-					//
 					if (calc != leaf.Crc16)
 						return false;
 				}
 
-				//
 				// This entry has now been used, so remove it
-				//
 				Base->Leaves.erase(itr);
 
-				//
-				// Copy the symbol name and return
-				//
 				strcpy_s(Info->Name, leaf.Symbol);
 				return true;
 			}
@@ -142,9 +121,7 @@ bool ApplySignatureSymbols(char *Path, duint ModuleBase)
 {
 	_plugin_logprintf("Opening sig file '%s'\n", Path);
 
-	//
 	// Load the signature
-	//
 	IDASig signature;
 
 	if (!signature.Load(Path))
@@ -152,9 +129,7 @@ bool ApplySignatureSymbols(char *Path, duint ModuleBase)
 
 	_plugin_logprintf("Loading signatures in '%s' (Version %d)\n", signature.SignatureName, (int)signature.SignatureVersion);
 
-	//
 	// Architecture check
-	//
 #ifdef _WIN64
 	if (!signature.Support64Bit())
 	{
@@ -169,9 +144,7 @@ bool ApplySignatureSymbols(char *Path, duint ModuleBase)
 	}
 #endif // _WIN64
 
-	//
 	// Get the module size
-	//
 	duint moduleSize = DbgFunctions()->ModSizeFromAddr(ModuleBase);
 
 	if (moduleSize <= 0)
@@ -180,9 +153,7 @@ bool ApplySignatureSymbols(char *Path, duint ModuleBase)
 		return false;
 	}
 
-	//
 	// Read the entire image to a local buffer for scanning
-	//
 	PBYTE imageCopy = (PBYTE)VirtualAlloc(nullptr, moduleSize, MEM_COMMIT, PAGE_READWRITE);
 
 	if (!imageCopy || !DbgMemRead(ModuleBase, imageCopy, moduleSize))
@@ -195,9 +166,7 @@ bool ApplySignatureSymbols(char *Path, duint ModuleBase)
 		return false;
 	}
 
-	//
 	// Scan memory
-	//
 	UINT32 count = 0;
 
 	for (PBYTE va = imageCopy; va < (imageCopy + moduleSize);)
@@ -224,9 +193,7 @@ bool ApplySignatureSymbols(char *Path, duint ModuleBase)
 		}
 	}
 
-	//
 	// Free memory
-	//
 	VirtualFree(imageCopy, 0, MEM_RELEASE);
 
 	_plugin_logprintf("Applied %d signatures(s)\n", count);
@@ -237,17 +204,13 @@ bool ApplyDiffSymbols(char *Path, duint UNUSED_ModuleBase)
 {
 	_plugin_logprintf("Opening dif file '%s'\n", Path);
 
-	//
 	// Parse the diff
-	//
 	IDADiffReader diff;
 
 	if (!diff.Load(Path))
 		return false;
 
-	//
 	// Convert the module name in the DIFF to an address
-	//
 	duint moduleBase = DbgFunctions()->ModBaseFromName(diff.GetModule());
 
 	if (!moduleBase)
@@ -256,9 +219,7 @@ bool ApplyDiffSymbols(char *Path, duint UNUSED_ModuleBase)
 		return false;
 	}
 
-	//
 	// Load the image and query the size
-	//
 	DWORD loadedSize	= 0;
 	ULONG_PTR fileMapVa = 0;
 
@@ -281,9 +242,7 @@ bool ApplyDiffSymbols(char *Path, duint UNUSED_ModuleBase)
 		}
 	}
 
-	//
 	// Patches use the FILE OFFSET (not virtual offset)
-	//
 	UINT32 count = 0;
 
 	for (auto& patch : diff.GetPatches())
@@ -311,9 +270,7 @@ bool ApplyDiffSymbols(char *Path, duint UNUSED_ModuleBase)
 		count++;
 	}
 
-	//
 	// Unload the static copy
-	//
 	StaticFileUnloadW(nullptr, false, nullptr, 0, nullptr, fileMapVa);
 
 	_plugin_logprintf("Applied %d patch(es) to %s\n", count, diff.GetModule());
@@ -330,9 +287,6 @@ bool ApplyMapSymbols(char *Path, duint ModuleBase)
 	if (!map.Load(Path))
 		return false;
 
-    //
-    // Get segments
-    //
     auto& segments = map.GetSegments();
 
 	if (!Settings::UseSegments)
@@ -362,17 +316,13 @@ bool ApplyMapSymbols(char *Path, duint ModuleBase)
         }
     }
 
-    //
     // Print segments to log
-    // 
     _plugin_logprintf("%d segment(s)\n", segments.size());
 
     for (auto& seg : segments)
         _plugin_logprintf("  %d: Start=0x%08llX, Length=0x%08llX, %s\n", seg.Id, seg.Start, seg.Length, seg.Name);
 
-	//
 	// Apply each symbol manually
-	//
     for (auto& sym : map.GetSymbols())
         DbgSetAutoLabelAt((duint)(ModuleBase + map.GetSegmentStart(sym.Id) + sym.Offset), sym.Name);
 
@@ -384,9 +334,7 @@ bool ExportDiffSymbols(char *Path, duint ModuleBase)
 {
 	IDADiffWriter diff;
 
-	//
 	// Get the array size of patches needed
-	//
 	size_t size = 0;
 	DbgFunctions()->PatchEnum(nullptr, &size);
 
@@ -396,9 +344,7 @@ bool ExportDiffSymbols(char *Path, duint ModuleBase)
 		return true;
 	}
 
-	//
 	// Set basic information
-	//
 	{
 		char temp[MAX_PATH];
 		if (!DbgFunctions()->ModNameFromAddr(ModuleBase, temp, true))
@@ -411,9 +357,7 @@ bool ExportDiffSymbols(char *Path, duint ModuleBase)
 		diff.SetModule(temp);
 	}
 
-	//
 	// Load the image and query the size
-	//
 	DWORD loadedSize	= 0;
 	ULONG_PTR fileMapVa = 0;
 	ULONG_PTR fileBase	= 0;
@@ -439,9 +383,7 @@ bool ExportDiffSymbols(char *Path, duint ModuleBase)
 		fileBase = GetPE32DataFromMappedFile(fileMapVa, NULL, UE_IMAGEBASE);
 	}
 
-	//
 	// Store each patch
-	//
 	DBGPATCHINFO *patchInfo = (DBGPATCHINFO *)BridgeAlloc(size);
 	DbgFunctions()->PatchEnum(patchInfo, &size);
 
@@ -469,16 +411,10 @@ bool ExportDiffSymbols(char *Path, duint ModuleBase)
 		diff.AddPatch(&entry);
 	}
 
-	//
-	// Free memory and unload the static copy
-	//
 	BridgeFree(patchInfo);
-
 	StaticFileUnloadW(nullptr, false, nullptr, 0, nullptr, fileMapVa);
 
-	//
 	// Dump all patches to a file
-	//
 	if (!diff.Generate(Path))
 	{
 		_plugin_logprintf("Failed to generate diff file\n");

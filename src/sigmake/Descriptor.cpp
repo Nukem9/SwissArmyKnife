@@ -155,14 +155,7 @@ void DescriptorToCRC(SIG_DESCRIPTOR *Descriptor, char **Data, char **Mask)
 
 SIG_DESCRIPTOR *DescriptorFromCode(const char *Data, const char *Mask)
 {
-	//
-	// Get the number of byte entries
-	//
 	ULONG count = (ULONG)strlen(Mask);
-
-	//
-	// Allocate the descriptor
-	//
 	SIG_DESCRIPTOR *desc = AllocDescriptor(count);
 
 	//
@@ -193,9 +186,7 @@ SIG_DESCRIPTOR *DescriptorFromCode(const char *Data, const char *Mask)
 
 SIG_DESCRIPTOR *DescriptorFromIDA(const char *Data)
 {
-	//
 	// Get the number of entries by counting spaces + 1
-	//
 	size_t dataLen	= strlen(Data);
 	ULONG count		= 1;
 
@@ -205,9 +196,6 @@ SIG_DESCRIPTOR *DescriptorFromIDA(const char *Data)
 			count++;
 	}
 
-	//
-	// Allocate the descriptor
-	//
 	SIG_DESCRIPTOR *desc = AllocDescriptor(count);
 
 	//

@@ -8,9 +8,7 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPAR
 	{
 	case WM_INITDIALOG:
 	{
-		//
 		// If this isn't a 64-bit build, disable the RIP-relative option
-		//
 #ifndef _WIN64
 		EnableWindow(GetDlgItem(hwndDlg, IDC_SETTINGS_RELADDR), FALSE);
 #endif // ndef _WIN64
@@ -68,9 +66,6 @@ INT_PTR CALLBACK SettingsDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPAR
 
 void OpenSettingsDialog()
 {
-	//
-	// Open the dialog
-	//
 	g_SettingsDialog = CreateDialog(g_LocalDllHandle, MAKEINTRESOURCE(IDD_SETTINGS), GuiGetWindowHandle(), SettingsDialogProc);
 
 	if (!g_SettingsDialog)
