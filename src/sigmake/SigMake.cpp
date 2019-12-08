@@ -205,27 +205,37 @@ bool MatchOperands(_DInst *Instruction, _Operand *Operands, int PrefixSize)
 		case O_REG:		// Register
 			continue;
 
-		case O_IMM:		// Only accept IMM if it's less than 32 bits
-			if (Settings::IncludeMemRefences || Operands[i].size < 32)
+		case O_IMM:		// Only accept IMM if it's less than 32 bits or not a real pointer
+			if (Settings::IncludeMemRefences)
 				continue;
+
+			if (Operands[i].size < 32)
+				continue;
+
+			if (!DbgMemIsValidReadPtr(Instruction->imm.qword))
+				continue;
+
 			return false;
 
 		case O_IMM1:	// Special operands for ENTER (These are INCLUDED)
 		case O_IMM2:	// Same as above
 			continue;
 
-		case O_DISP:	// Only accept DISP if it's less than 32 bits, lower than 0x10000,
-		case O_SMEM:	// or if it is RIP-relative
+		case O_DISP:	// Only accept DISP if it is RIP-relative, less than 32 bits,
+		case O_SMEM:	// or not a real pointer
 		case O_MEM:		//
 #ifdef _WIN64
 			if (!Settings::IncludeRelAddresses && Operands[i].index == R_RIP)
 				return false;
 #endif // _WIN64
 
-			if (Settings::IncludeMemRefences || Instruction->dispSize < 32)
+			if (Settings::IncludeMemRefences)
 				continue;
 
-			if (Instruction->dispSize >= 32 && Instruction->disp <= 0x10000)
+			if (Instruction->dispSize < 32)
+				continue;
+
+			if (!DbgMemIsValidReadPtr(Instruction->disp))
 				continue;
 
 			return false;
@@ -273,7 +283,7 @@ int MatchInstruction(_DInst *Instruction, PBYTE Data)
 	//
 	prefixes_decode(Data, info.codeLen, &ps, info.dt);
 
-	int prefixSize = (int)(ps.start - ps.last);
+	int prefixSize = (int)(ps.last - ps.start);
 
 	//
 	// The return value is ignored here. _CodeInfo::codeLen is modified
