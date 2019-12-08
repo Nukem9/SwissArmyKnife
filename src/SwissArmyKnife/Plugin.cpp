@@ -45,6 +45,10 @@ void MenuEntryCallback(CBTYPE Type, PLUG_CB_MENUENTRY *Info)
 		OpenSigMakeDialog();
 		break;
 
+	case PLUGIN_MENU_BATCHSIG:
+		OpenBatchSigDialog();
+		break;
+
 	case PLUGIN_MENU_SETTINGS:
 		OpenSettingsDialog();
 		break;
@@ -131,6 +135,7 @@ DLL_EXPORT void plugsetup(PLUG_SETUPSTRUCT *SetupStruct)
 
 	int signatureMenu = _plugin_menuadd(g_MenuHandle, "Signature");
 	_plugin_menuaddentry(signatureMenu, PLUGIN_MENU_MAKESIG, "&Create");
+	_plugin_menuaddentry(signatureMenu, PLUGIN_MENU_BATCHSIG, "&Batch Create");
 	_plugin_menuaddseparator(g_MenuHandle);
 
 	// Misc
