@@ -32,7 +32,7 @@ namespace Settings
 			// Set the default values
 			TrimSignatures		= true;
 			IncludeShortJumps	= true;
-			IncludeRelAddresses = true;
+			IncludeRelAddresses = false;
 			UseSegments         = false;
 
 			Save();
