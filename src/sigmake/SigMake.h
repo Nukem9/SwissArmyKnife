@@ -1,6 +1,7 @@
 #pragma once
 
 SIG_DESCRIPTOR *GenerateSigFromCode(duint Start, duint End);
+void PatternScan(SIG_DESCRIPTOR *Descriptor, std::vector<duint>& Results, duint BaseAddress, duint Size, PBYTE Memory);
 void PatternScan(SIG_DESCRIPTOR *Descriptor, std::vector<duint>& Results);
 
 bool MatchOperands(_DInst *Instruction, _Operand *Operands, int PrefixSize);

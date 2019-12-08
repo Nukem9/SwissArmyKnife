@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "stdafx.h"
 
 const static duint CodeSizeMinimum = 1;			// 01 bytes
@@ -121,7 +122,7 @@ __freememory:
 	return desc;
 }
 
-void PatternScan(SIG_DESCRIPTOR *Descriptor, std::vector<duint>& Results)
+void PatternScan(SIG_DESCRIPTOR *Descriptor, std::vector<duint>& Results, duint BaseAddress, duint Size, PBYTE Memory)
 {
 	if (Descriptor->Count <= 0)
 	{
@@ -129,6 +130,40 @@ void PatternScan(SIG_DESCRIPTOR *Descriptor, std::vector<duint>& Results)
 		return;
 	}
 
+	std::vector<uintptr_t> results;
+	std::vector<std::pair<uint8_t, bool>> pattern;
+
+	for (size_t i = 0; i < Descriptor->Count; i++)
+		pattern.emplace_back(Descriptor->Entries[i].Value, Descriptor->Entries[i].Wildcard);
+
+	const uint8_t *dataStart = (uint8_t *)Memory;
+	const uint8_t *dataEnd = (uint8_t *)Memory + Size + 1;
+
+	for (const uint8_t *i = dataStart;;)
+	{
+		auto ret = std::search(i, dataEnd, pattern.begin(), pattern.end(),
+			[](uint8_t CurrentByte, std::pair<uint8_t, bool>& Pattern)
+		{
+			return Pattern.second || (CurrentByte == Pattern.first);
+		});
+
+		// No byte pattern matched, exit loop
+		if (ret == dataEnd)
+			break;
+
+		// Cap at 10K for bogus results
+		if (Results.size() >= 10000)
+			break;
+
+		uintptr_t addr = std::distance(dataStart, ret) + BaseAddress;
+		Results.push_back(addr);
+
+		i = std::next(ret);
+	}
+}
+
+void PatternScan(SIG_DESCRIPTOR *Descriptor, std::vector<duint>& Results)
+{
 	// Get a copy of the current module in disassembly
 	duint moduleBase	= DbgGetCurrentModule();
 	duint moduleSize	= DbgFunctions()->ModSizeFromAddr(moduleBase);
@@ -140,27 +175,8 @@ void PatternScan(SIG_DESCRIPTOR *Descriptor, std::vector<duint>& Results)
 		return;
 	}
 
-	auto DataCompare = [](PBYTE Data, SIG_DESCRIPTOR_ENTRY *Entries, ULONG Count)
-	{
-		ULONG i = 0;
-
-		for (; i < Count; ++Data, ++i)
-		{
-			if (Entries[i].Wildcard == 0 && *Data != Entries[i].Value)
-				return false;
-		}
-
-		return i == Count;
-	};
-
-	// Scanner loop
-	for (duint i = 0; i < moduleSize; i++)
-	{
-		PBYTE dataAddr = processMemory + i;
-
-		if (DataCompare(dataAddr, Descriptor->Entries, Descriptor->Count))
-			Results.push_back(moduleBase + i);
-	}
+	PatternScan(Descriptor, Results, moduleBase, moduleSize, processMemory);
+	BridgeFree(processMemory);
 }
 
 bool MatchOperands(_DInst *Instruction, _Operand *Operands, int PrefixSize)
