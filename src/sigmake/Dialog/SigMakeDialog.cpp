@@ -128,6 +128,7 @@ void MakeSigDialogExecute(HWND hwndDlg)
 	GuiReferenceAddColumn(100, "Disassembly");
 	GuiReferenceSetRowCount((int)results.size());
 	GuiReferenceSetProgress(0);
+	GuiShowReferences();
 
 	int i = 0;
 	for (auto& match : results)
