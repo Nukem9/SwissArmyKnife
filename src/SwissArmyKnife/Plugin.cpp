@@ -128,14 +128,14 @@ DLL_EXPORT void plugsetup(PLUG_SETUPSTRUCT *SetupStruct)
 	_plugin_menuaddentry(exportMenu, PLUGIN_MENU_EXPORTMAP, "&MAP file");
 	_plugin_menuaddseparator(g_MenuHandle);
 
-	int cryptoMenu = _plugin_menuadd(g_MenuHandle, "Crypto");
-	_plugin_menuaddentry(cryptoMenu, PLUGIN_MENU_FINDCRYPTO, "&Findcrypt2 with AES-NI");
-	_plugin_menuaddentry(cryptoMenu, PLUGIN_MENU_AESFINDER, "&AES-Finder");
+	// Crypto
+	_plugin_menuaddentry(g_MenuHandle, PLUGIN_MENU_FINDCRYPTO, "&Findcrypt2 with AES-NI");
+	_plugin_menuaddentry(g_MenuHandle, PLUGIN_MENU_AESFINDER, "&AES-Finder");
 	_plugin_menuaddseparator(g_MenuHandle);
 
-	int signatureMenu = _plugin_menuadd(g_MenuHandle, "Signature");
-	_plugin_menuaddentry(signatureMenu, PLUGIN_MENU_MAKESIG, "&Create");
-	_plugin_menuaddentry(signatureMenu, PLUGIN_MENU_BATCHSIG, "&Batch Create");
+	// Signature
+	_plugin_menuaddentry(g_MenuHandle, PLUGIN_MENU_MAKESIG, "&Create Signature");
+	_plugin_menuaddentry(g_MenuHandle, PLUGIN_MENU_BATCHSIG, "&Batch Create Signatures");
 	_plugin_menuaddseparator(g_MenuHandle);
 
 	// Misc
